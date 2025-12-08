@@ -1,0 +1,279 @@
+{
+  "TroubleBrewing": {
+    "name": "Trouble Brewing",
+    "characters": {
+      "townsfolk": [
+        {
+          "id": "washerwoman",
+          "name": "Washerwoman",
+          "ability": "Du erfährst in der ersten Nacht, dass einer von zwei Spielern ein bestimmter Townsfolk ist.",
+          "first_night": 1,
+          "other_nights": 0
+        },
+        {
+          "id": "librarian",
+          "name": "Librarian",
+          "ability": "Du erfährst in der ersten Nacht, dass einer von zwei Spielern ein bestimmter Outsider ist (oder dass keine Outsider im Spiel sind).",
+          "first_night": 2,
+          "other_nights": 0
+        },
+        {
+          "id": "investigator",
+          "name": "Investigator",
+          "ability": "Du erfährst in der ersten Nacht, dass einer von zwei Spielern ein bestimmter Minion ist.",
+          "first_night": 3,
+          "other_nights": 0
+        },
+        {
+          "id": "chef",
+          "name": "Chef",
+          "ability": "Du erfährst in der ersten Nacht, wie viele Paare böser Spieler nebeneinander sitzen.",
+          "first_night": 4,
+          "other_nights": 0
+        },
+        {
+          "id": "empath",
+          "name": "Empath",
+          "ability": "Jede Nacht erfährst du, wie viele deiner lebenden Nachbarn böse sind.",
+          "first_night": 5,
+          "other_nights": 10
+        },
+        {
+          "id": "fortuneteller",
+          "name": "Fortune Teller",
+          "ability": "Jede Nacht wählst du 2 Spieler: Du erfährst, ob einer von ihnen der Dämon ist. Es gibt einen guten Spieler, der als Dämon registriert.",
+          "first_night": 6,
+          "other_nights": 11
+        },
+        {
+          "id": "undertaker",
+          "name": "Undertaker",
+          "ability": "Jede Nacht (außer der ersten) erfährst du, welche Rolle der Spieler hatte, der heute tagsüber hingerichtet wurde.",
+          "first_night": 0,
+          "other_nights": 12
+        },
+        {
+          "id": "monk",
+          "name": "Monk",
+          "ability": "Jede Nacht wählst du einen anderen Spieler (nicht dich selbst): Er ist vor dem Dämon geschützt.",
+          "first_night": 0,
+          "other_nights": 3
+        },
+        {
+          "id": "ravenkeeper",
+          "name": "Ravenkeeper",
+          "ability": "Wenn du stirbst, wählst du einen Spieler und erfährst seine Rolle.",
+          "first_night": 0,
+          "other_nights": 13
+        },
+        {
+          "id": "virgin",
+          "name": "Virgin",
+          "ability": "Wenn du das erste Mal nominiert wirst, wird der Nominierende hingerichtet (falls er ein Townsfolk ist).",
+          "first_night": 0,
+          "other_nights": 0
+        },
+        {
+          "id": "slayer",
+          "name": "Slayer",
+          "ability": "Einmal pro Spiel kannst du tagsüber einen Spieler wählen: Wenn er der Dämon ist, stirbt er.",
+          "first_night": 0,
+          "other_nights": 0
+        },
+        {
+          "id": "soldier",
+          "name": "Soldier",
+          "ability": "Du bist sicher vor dem Dämon.",
+          "first_night": 0,
+          "other_nights": 0
+        },
+        {
+          "id": "mayor",
+          "name": "Mayor",
+          "ability": "Wenn nur 3 Spieler leben, kannst du nicht durch Hinrichtung sterben.",
+          "first_night": 0,
+          "other_nights": 0
+        }
+      ],
+      "outsiders": [
+        {
+          "id": "butler",
+          "name": "Butler",
+          "ability": "Jede Nacht wählst du einen Spieler (nicht dich selbst): Morgen kannst du nur abstimmen, wenn er abstimmt.",
+          "first_night": 7,
+          "other_nights": 9
+        },
+        {
+          "id": "drunk",
+          "name": "Drunk",
+          "ability": "Du weißt nicht, dass du der Drunk bist. Du denkst, du bist ein Townsfolk, aber deine Fähigkeit funktioniert nicht.",
+          "first_night": 0,
+          "other_nights": 0
+        },
+        {
+          "id": "recluse",
+          "name": "Recluse",
+          "ability": "Du kannst für den Dämon oder Minion registrieren, auch wenn du tot bist.",
+          "first_night": 0,
+          "other_nights": 0
+        },
+        {
+          "id": "saint",
+          "name": "Saint",
+          "ability": "Wenn du hingerichtet wirst, verliert dein Team.",
+          "first_night": 0,
+          "other_nights": 0
+        }
+      ],
+      "minions": [
+        {
+          "id": "poisoner",
+          "name": "Poisoner",
+          "ability": "Jede Nacht wählst du einen Spieler: Er ist vergiftet bis zur nächsten Dämmerung.",
+          "first_night": 8,
+          "other_nights": 1
+        },
+        {
+          "id": "spy",
+          "name": "Spy",
+          "ability": "Jede Nacht siehst du das Grimoire (Erzählerbuch). Du kannst für gute Rollen registrieren.",
+          "first_night": 9,
+          "other_nights": 8
+        },
+        {
+          "id": "scarletwoman",
+          "name": "Scarlet Woman",
+          "ability": "Wenn 5 oder mehr Spieler leben und der Dämon stirbt, wirst du zum Dämon.",
+          "first_night": 0,
+          "other_nights": 7
+        },
+        {
+          "id": "baron",
+          "name": "Baron",
+          "ability": "Es gibt 2 zusätzliche Outsider im Spiel.",
+          "first_night": 0,
+          "other_nights": 0
+        }
+      ],
+      "demons": [
+        {
+          "id": "imp",
+          "name": "Imp",
+          "ability": "Jede Nacht wählst du einen Spieler: Er stirbt. Wenn du dich selbst wählst, stirbst du und ein lebender Minion wird zum Imp.",
+          "first_night": 0,
+          "other_nights": 4
+        }
+      ]
+    },
+    "setup": {
+      "5": {"townsfolk": 3, "outsiders": 0, "minions": 1, "demons": 1},
+      "6": {"townsfolk": 3, "outsiders": 1, "minions": 1, "demons": 1},
+      "7": {"townsfolk": 5, "outsiders": 0, "minions": 1, "demons": 1},
+      "8": {"townsfolk": 5, "outsiders": 1, "minions": 1, "demons": 1},
+      "9": {"townsfolk": 5, "outsiders": 2, "minions": 1, "demons": 1},
+      "10": {"townsfolk": 7, "outsiders": 0, "minions": 2, "demons": 1},
+      "11": {"townsfolk": 7, "outsiders": 1, "minions": 2, "demons": 1},
+      "12": {"townsfolk": 7, "outsiders": 2, "minions": 2, "demons": 1},
+      "13": {"townsfolk": 9, "outsiders": 0, "minions": 3, "demons": 1},
+      "14": {"townsfolk": 9, "outsiders": 1, "minions": 3, "demons": 1},
+      "15": {"townsfolk": 9, "outsiders": 2, "minions": 3, "demons": 1}
+    }
+  },
+  "SectsAndViolets": {
+    "name": "Sects & Violets",
+    "characters": {
+      "townsfolk": [
+        {
+          "id": "clockmaker",
+          "name": "Clockmaker",
+          "ability": "Du erfährst in der ersten Nacht, wie viele Schritte vom Dämon zu seinem nächsten Minion sind.",
+          "first_night": 1,
+          "other_nights": 0
+        },
+        {
+          "id": "dreamer",
+          "name": "Dreamer",
+          "ability": "Jede Nacht wählst du einen Spieler (nicht dich selbst): Du erfährst eine gute und eine böse Rolle, eine davon ist seine Rolle.",
+          "first_night": 2,
+          "other_nights": 5
+        },
+        {
+          "id": "artist",
+          "name": "Artist",
+          "ability": "Einmal pro Spiel kannst du tagsüber eine Ja/Nein-Frage stellen. Der Erzähler antwortet.",
+          "first_night": 0,
+          "other_nights": 0
+        },
+        {
+          "id": "sage",
+          "name": "Sage",
+          "ability": "Wenn der Dämon dich tötet, erfährst du, dass ein oder zwei lebende Spieler der Dämon sind.",
+          "first_night": 0,
+          "other_nights": 0
+        }
+      ],
+      "outsiders": [
+        {
+          "id": "mutant",
+          "name": "Mutant",
+          "ability": "Wenn du verraten wirst, dass du der Mutant bist, verliert dein Team.",
+          "first_night": 0,
+          "other_nights": 0
+        },
+        {
+          "id": "sweetheart",
+          "name": "Sweetheart",
+          "ability": "Wenn du stirbst, wird ein Spieler betrunken.",
+          "first_night": 0,
+          "other_nights": 0
+        }
+      ],
+      "minions": [
+        {
+          "id": "eviltwins",
+          "name": "Evil Twin",
+          "ability": "Du und ein Gegenspieler kennen euch gegenseitig. Wenn der gute Spieler hingerichtet wird, gewinnt das böse Team.",
+          "first_night": 3,
+          "other_nights": 0
+        },
+        {
+          "id": "witch",
+          "name": "Witch",
+          "ability": "Jede Nacht wählst du einen Spieler: Falls er morgen nominiert, stirbt er.",
+          "first_night": 0,
+          "other_nights": 2
+        }
+      ],
+      "demons": [
+        {
+          "id": "fanggu",
+          "name": "Fang Gu",
+          "ability": "Jede Nacht wählst du einen Spieler: Er stirbt. Erstmals, wenn ein Outsider stirbt, wirst du und er zum Fang Gu.",
+          "first_night": 0,
+          "other_nights": 3
+        },
+        {
+          "id": "vigormortis",
+          "name": "Vigormortis",
+          "ability": "Jede Nacht wählst du einen Spieler: Er stirbt. Minions, die du tötest, behalten ihre Fähigkeit und vergiften einen Townsfolk-Nachbarn.",
+          "first_night": 0,
+          "other_nights": 4
+        }
+      ]
+    },
+    "setup": {
+      "5": {"townsfolk": 3, "outsiders": 0, "minions": 1, "demons": 1},
+      "6": {"townsfolk": 3, "outsiders": 1, "minions": 1, "demons": 1},
+      "7": {"townsfolk": 5, "outsiders": 0, "minions": 1, "demons": 1},
+      "8": {"townsfolk": 5, "outsiders": 1, "minions": 1, "demons": 1},
+      "9": {"townsfolk": 5, "outsiders": 2, "minions": 1, "demons": 1},
+      "10": {"townsfolk": 7, "outsiders": 0, "minions": 2, "demons": 1},
+      "11": {"townsfolk": 7, "outsiders": 1, "minions": 2, "demons": 1},
+      "12": {"townsfolk": 7, "outsiders": 2, "minions": 2, "demons": 1},
+      "13": {"townsfolk": 9, "outsiders": 0, "minions": 3, "demons": 1},
+      "14": {"townsfolk": 9, "outsiders": 1, "minions": 3, "demons": 1},
+      "15": {"townsfolk": 9, "outsiders": 2, "minions": 3, "demons": 1}
+    }
+  }
+}
+

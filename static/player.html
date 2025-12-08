@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood on the Clocktower - Spieler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .waiting {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .waiting h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .waiting p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .role-card {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .role-name {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .role-type {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .role-type.townsfolk {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .role-type.outsiders {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .role-type.minions {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .role-type.demons {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .role-ability {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .role-ability h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .role-ability p {
+            color: #555;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .refresh-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .refresh-btn:hover {
+            background: #5568d3;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🎭 Blood on the Clocktower</h1>
+
+            <div id="waitingView" class="waiting">
+                <div class="spinner"></div>
+                <h2>Warte auf Spielstart...</h2>
+                <p>Der Erzähler wird bald das Spiel starten und die Rollen verteilen.</p>
+                <button class="refresh-btn" onclick="checkRole()">Aktualisieren</button>
+            </div>
+
+            <div id="roleView" style="display: none;">
+                <div class="role-card">
+                    <div class="role-name" id="roleName">-</div>
+                    <span class="role-type" id="roleType">-</span>
+
+                    <div class="role-ability">
+                        <h3>📜 Deine Fähigkeit:</h3>
+                        <p id="roleAbility">-</p>
+                    </div>
+                </div>
+
+                <button class="refresh-btn" onclick="checkRole()">Aktualisieren</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const gameId = urlParams.get('game');
+        const playerId = urlParams.get('player');
+
+        const waitingView = document.getElementById('waitingView');
+        const roleView = document.getElementById('roleView');
+
+        // Prüfe ob Rolle bereits zugewiesen
+        async function checkRole() {
+            if (!gameId || !playerId) {
+                alert('Fehler: Fehlende Parameter in URL!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/player/${gameId}/${playerId}/role`);
+
+                if (response.ok) {
+                    const role = await response.json();
+                    showRole(role);
+                } else {
+                    // Noch keine Rolle zugewiesen
+                    showWaiting();
+                }
+            } catch (error) {
+                console.error('Fehler:', error);
+            }
+        }
+
+        function showWaiting() {
+            waitingView.style.display = 'block';
+            roleView.style.display = 'none';
+        }
+
+        function showRole(role) {
+            document.getElementById('roleName').textContent = role.name;
+            document.getElementById('roleType').textContent = getTypeLabel(role.type);
+            document.getElementById('roleType').className = `role-type ${role.type}`;
+            document.getElementById('roleAbility').textContent = role.ability;
+
+            waitingView.style.display = 'none';
+            roleView.style.display = 'block';
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                'townsfolk': '👥 Townsfolk',
+                'outsiders': '🎭 Outsider',
+                'minions': '😈 Minion',
+                'demons': '👹 Dämon'
+            };
+            return labels[type] || type;
+        }
+
+        // Auto-Refresh alle 5 Sekunden
+        setInterval(checkRole, 5000);
+
+        // Initiale Prüfung
+        checkRole();
+    </script>
+</body>
+</html>
+

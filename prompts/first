@@ -1,0 +1,12 @@
+ich will das Spiel blood on the clocktower (https://bloodontheclocktower.com/) als webapp mit python bauen. Das Spiel ist ähnlich zu Werwolf und gibt jedem Spieler eine Rolle. Jede Rolle hat Fähigkeiten. Ich will nur folgendes vom Spiel nachbauen:
+
+Man muss zuerst eine Edition auswählen: TroubleBrewing, SectsViolets etc... in jeder Edition stehen verschiedene Charaktere zur Auswahl.
+
+Nachdem man die Edition ausgewählt hat, werden automatisch die Charaktere die vorhanden sind angezeigt.
+
+Im nächsten Schritt gibt man die Spieler Anzahl an die mitspielen.  Jedem Spieler wird dann einer der Charaktäre zufällig zugelost.
+Jeder Spieler hat ein Handy und kann über sein Handy seine Rolle erfahren und bekommt auch dort eine Regelbeschreibung für die Rolle angezeigt.
+
+Die Rolle des Erzählers erhät eine Übersicht welcher Spieler welchen Charakter hat und die Nachphase (jede Rolle muss in einer bestimmten Reihenfolge in der Nacht aufwachen) wird ihm angezeigt in welcher Reihenfolge er sie aufrufen muss.
+
+wie mache ich das am besten?

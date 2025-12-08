@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood on the Clocktower - Beitreten</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .game-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .game-info p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            margin-top: 10px;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎭 Blood on the Clocktower</h1>
+        <p class="subtitle">Spiel beitreten</p>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div class="game-info" id="gameInfo">
+            <p><strong>Spiel-ID:</strong> <span id="gameId">-</span></p>
+            <p><strong>Edition:</strong> <span id="edition">-</span></p>
+            <p><strong>Spieler:</strong> <span id="playerCount">0</span></p>
+        </div>
+
+        <form id="joinGameForm">
+            <div class="form-group">
+                <label for="playerName">Dein Name:</label>
+                <input type="text" id="playerName" required placeholder="z.B. Anna">
+            </div>
+
+            <button type="submit" id="submitBtn">Beitreten</button>
+            <div class="loading" id="loading" style="display: none;">Lade...</div>
+        </form>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const gameId = urlParams.get('game');
+        const errorDiv = document.getElementById('error');
+        const joinGameForm = document.getElementById('joinGameForm');
+        const loading = document.getElementById('loading');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Zeige Fehler
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        // Lade Spielinfo
+        async function loadGameInfo() {
+            if (!gameId) {
+                showError('Keine Spiel-ID in der URL gefunden!');
+                submitBtn.disabled = true;
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/game/${gameId}`);
+
+                if (!response.ok) {
+                    throw new Error('Spiel nicht gefunden');
+                }
+
+                const game = await response.json();
+
+                document.getElementById('gameId').textContent = game.id;
+                document.getElementById('edition').textContent = game.edition;
+                document.getElementById('playerCount').textContent = game.player_count;
+
+                if (game.started) {
+                    showError('Das Spiel hat bereits begonnen!');
+                    submitBtn.disabled = true;
+                }
+
+            } catch (error) {
+                showError('Fehler beim Laden der Spielinfo: ' + error.message);
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Trete Spiel bei
+        joinGameForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const playerName = document.getElementById('playerName').value;
+
+            if (!playerName) {
+                showError('Bitte gib deinen Namen ein!');
+                return;
+            }
+
+            loading.style.display = 'block';
+            submitBtn.disabled = true;
+            errorDiv.style.display = 'none';
+
+            try {
+                const response = await fetch(`/api/game/${gameId}/join`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        player_name: playerName
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Fehler beim Beitreten');
+                }
+
+                const data = await response.json();
+
+                // Speichere Daten in localStorage
+                localStorage.setItem('gameId', data.game_id);
+                localStorage.setItem('playerId', data.player_id);
+                localStorage.setItem('playerName', data.name);
+
+                alert(`Erfolgreich beigetreten! 🎉\n\nWarte darauf, dass der Erzähler das Spiel startet.`);
+
+                // Weiterleitung zur Spieler-Ansicht
+                window.location.href = `/player.html?game=${data.game_id}&player=${data.player_id}`;
+
+            } catch (error) {
+                showError('Fehler: ' + error.message);
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Lade Spielinfo beim Start
+        loadGameInfo();
+    </script>
+</body>
+</html>
+
