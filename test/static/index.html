@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood on the Clocktower - Neues Spiel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            color: #667eea;
+        }
+
+        .error {
+            background-color: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .edition-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .icon {
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🎭</div>
+        <h1>Blood on the Clocktower</h1>
+        <p class="subtitle">Erstelle ein neues Spiel</p>
+
+        <div class="error" id="error-message"></div>
+
+        <form id="create-game-form">
+            <div class="form-group">
+                <label for="storyteller-name">Dein Name (Erzähler)</label>
+                <input
+                    type="text"
+                    id="storyteller-name"
+                    name="storyteller-name"
+                    placeholder="Gib deinen Namen ein"
+                    required
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="edition">Edition auswählen</label>
+                <select id="edition" name="edition" required>
+                    <option value="">Lade Editionen...</option>
+                </select>
+                <div class="edition-info" id="edition-info" style="display: none;"></div>
+            </div>
+
+            <button type="submit" id="submit-btn">
+                Spiel erstellen
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <p>Spiel wird erstellt...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        // Editionen laden
+        async function loadEditions() {
+            try {
+                const response = await fetch(`${API_BASE}/api/editions`);
+                const editions = await response.json();
+
+                const select = document.getElementById('edition');
+                select.innerHTML = '<option value="">Wähle eine Edition</option>';
+
+                editions.forEach(edition => {
+                    const option = document.createElement('option');
+                    option.value = edition.id;
+                    option.textContent = edition.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Fehler beim Laden der Editionen:', error);
+                showError('Fehler beim Laden der Editionen. Bitte lade die Seite neu.');
+            }
+        }
+
+        // Edition Info anzeigen
+        document.getElementById('edition').addEventListener('change', async function() {
+            const editionId = this.value;
+            const infoDiv = document.getElementById('edition-info');
+
+            if (!editionId) {
+                infoDiv.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/editions/${editionId}/characters`);
+                const characters = await response.json();
+
+                const townsfolk = characters.filter(c => c.type === 'townsfolk').length;
+                const outsiders = characters.filter(c => c.type === 'outsider').length;
+                const minions = characters.filter(c => c.type === 'minion').length;
+                const demons = characters.filter(c => c.type === 'demon').length;
+
+                infoDiv.innerHTML = `
+                    <strong>Charaktere:</strong>
+                    ${townsfolk} Dorfbewohner,
+                    ${outsiders} Außenseiter,
+                    ${minions} Schergen,
+                    ${demons} Dämonen
+                `;
+                infoDiv.style.display = 'block';
+            } catch (error) {
+                console.error('Fehler beim Laden der Charaktere:', error);
+            }
+        });
+
+        // Formular absenden
+        document.getElementById('create-game-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const storytellerName = document.getElementById('storyteller-name').value.trim();
+            const edition = document.getElementById('edition').value;
+
+            if (!storytellerName || !edition) {
+                showError('Bitte fülle alle Felder aus.');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            const loading = document.getElementById('loading');
+
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            hideError();
+
+            try {
+                const response = await fetch(`${API_BASE}/api/game/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        edition: edition,
+                        storyteller_name: storytellerName
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Fehler beim Erstellen des Spiels');
+                }
+
+                const data = await response.json();
+
+                // Zur Erzähler-Seite weiterleiten
+                window.location.href = `/storyteller.html?game=${data.game_id}&storyteller=${data.storyteller_id}`;
+
+            } catch (error) {
+                console.error('Fehler:', error);
+                showError(error.message || 'Fehler beim Erstellen des Spiels. Bitte versuche es erneut.');
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error-message').style.display = 'none';
+        }
+
+        // Editionen beim Laden der Seite laden
+        loadEditions();
+    </script>
+</body>
+</html>
