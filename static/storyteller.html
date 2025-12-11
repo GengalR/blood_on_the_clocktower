@@ -64,12 +64,19 @@
             font-weight: 600;
         }
 
-        input {
-            width: 200px;
+        input, select {
             padding: 10px;
             border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+        }
+
+        input[type="number"] {
+            width: 200px;
         }
 
         button {
@@ -102,9 +109,6 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .player-name {
@@ -186,308 +190,6 @@
             font-size: 14px;
             margin-left: 10px;
         }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="card">
-            <h1>🎭 Erzähler-Ansicht</h1>
-            <p class="subtitle">Verwalte dein Blood on the Clocktower Spiel</p>
-
-            <div class="game-info">
-                <p><strong>Spiel-ID:</strong> <span id="gameId">-</span></p>
-                <p><strong>Edition:</strong> <span id="edition">-</span></p>
-                <p><strong>Status:</strong> <span id="status">Warte auf Spieler...</span></p>
-            </div>
-
-            <div class="alert">
-                <strong>📱 Spieler einladen:</strong><br>
-                Teile diesen Link mit den Spielern:<br>
-                <span id="joinUrl" style="font-family: monospace;">-</span>
-                <button class="copy-btn" onclick="copyJoinUrl()">Kopieren</button>
-            </div>
-
-            <div id="startGameSection">
-                <div class="form-group">
-                    <label for="playerCount">Spieleranzahl:</label>
-                    <input type="number" id="playerCount" min="5" max="15" value="7">
-                    <button onclick="startGame()" style="margin-left: 10px;">Spiel starten</button>
-                </div>
-            </div>
-
-            <h2>Spieler (<span id="playerCountDisplay">0</span>):</h2>
-            <div class="players-list" id="playersList"></div>
-        </div>
-
-        <div class="card" id="nightOrderCard" style="display: none;">
-            <h2>🌙 Nachtreihenfolge</h2>
-            <div class="night-order">
-                <div class="night-section">
-                    <h3>Erste Nacht</h3>
-                    <div id="firstNightOrder"></div>
-                </div>
-
-                <div class="night-section">
-                    <h3>Andere Nächte</h3>
-                    <div id="otherNightsOrder"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const gameId = urlParams.get('game');
-        const storytellerId = urlParams.get('storyteller');
-
-        let gameData = null;
-
-        // Lade Spielübersicht
-        async function loadOverview() {
-            if (!gameId || !storytellerId) {
-                alert('Fehler: Fehlende Parameter in URL!');
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/storyteller/${gameId}/${storytellerId}/overview`);
-
-                if (!response.ok) {
-                    throw new Error('Fehler beim Laden der Übersicht');
-                }
-
-                gameData = await response.json();
-                updateUI();
-
-            } catch (error) {
-                console.error('Fehler:', error);
-                alert('Fehler: ' + error.message);
-            }
-        }
-
-        function updateUI() {
-            if (!gameData) return;
-
-            // Spielinfo
-            document.getElementById('gameId').textContent = gameData.game_id;
-            document.getElementById('edition').textContent = gameData.edition;
-            document.getElementById('status').textContent = gameData.started ? '✅ Gestartet' : 'Warte auf Spieler...';
-
-            // Join URL
-            const joinUrl = `${window.location.origin}/join.html?game=${gameData.game_id}`;
-            document.getElementById('joinUrl').textContent = joinUrl;
-
-            // Spielerliste
-            const playersList = document.getElementById('playersList');
-            playersList.innerHTML = '';
-
-            gameData.players.forEach(player => {
-                const div = document.createElement('div');
-                div.className = 'player-item';
-                div.innerHTML = `
-                    <div>
-                        <div class="player-name">${player.name}</div>
-                        ${player.character ? `
-                            <div class="player-role">${player.character} (${getTypeLabel(player.type)})</div>
-                            <div class="player-ability">${player.ability}</div>
-                        ` : '<div class="player-role">Rolle noch nicht zugewiesen</div>'}
-                    </div>
-                `;
-                playersList.appendChild(div);
-            });
-
-            document.getElementById('playerCountDisplay').textContent = gameData.players.length;
-
-            // Wenn gestartet, zeige Nachtreihenfolge
-            if (gameData.started && gameData.night_order) {
-                document.getElementById('startGameSection').style.display = 'none';
-                document.getElementById('nightOrderCard').style.display = 'block';
-
-                // Erste Nacht
-                const firstNightDiv = document.getElementById('firstNightOrder');
-                firstNightDiv.innerHTML = '';
-                gameData.night_order.first_night.forEach(item => {
-                    firstNightDiv.innerHTML += `
-                        <div class="night-item">
-                            <div class="night-order-number">${item.order}</div>
-                            <div>
-                                <div class="night-character-name">${item.name}</div>
-                                <div class="night-ability">${item.ability}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                // Andere Nächte
-                const otherNightsDiv = document.getElementById('otherNightsOrder');
-                otherNightsDiv.innerHTML = '';
-                gameData.night_order.other_nights.forEach(item => {
-                    otherNightsDiv.innerHTML += `
-                        <div class="night-item">
-                            <div class="night-order-number">${item.order}</div>
-                            <div>
-                                <div class="night-character-name">${item.name}</div>
-                                <div class="night-ability">${item.ability}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-        }
-
-        function getTypeLabel(type) {
-            const labels = {
-                'townsfolk': 'Townsfolk',
-                'outsiders': 'Outsider',
-                'minions': 'Minion',
-                'demons': 'Dämon'
-            };
-            return labels[type] || type;
-        }
-
-        async function startGame() {
-            const playerCount = parseInt(document.getElementById('playerCount').value);
-
-            if (playerCount < 5 || playerCount > 15) {
-                alert('Spieleranzahl muss zwischen 5 und 15 liegen!');
-                return;
-            }
-
-            if (!confirm(`Spiel mit ${playerCount} Spielern starten?\nRollen werden jetzt verteilt!`)) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/game/${gameId}/start`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        player_count: playerCount
-                    })
-                });
-
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.detail || 'Fehler beim Starten');
-                }
-
-                alert('Spiel gestartet! 🎉\nRollen wurden verteilt!');
-
-                // Reload overview
-                await loadOverview();
-
-            } catch (error) {
-                alert('Fehler: ' + error.message);
-            }
-        }
-
-        function copyJoinUrl() {
-            const joinUrl = document.getElementById('joinUrl').textContent;
-            navigator.clipboard.writeText(joinUrl).then(() => {
-                alert('Link kopiert! 📋');
-            });
-        }
-
-        // Auto-Refresh alle 5 Sekunden
-        setInterval(loadOverview, 5000);
-
-        // Initiales Laden
-        loadOverview();
-    </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blood on the Clocktower - Neues Spiel</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
 
         .characters-preview {
             margin-top: 20px;
@@ -521,152 +223,367 @@
             color: #667eea;
             margin-top: 10px;
         }
+
+        /* Verstecke Ansichten standardmäßig */
+        #createGameView, #gameOverview {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎭 Blood on the Clocktower</h1>
-        <p class="subtitle">Neues Spiel erstellen</p>
+        <!-- Ansicht: Neues Spiel erstellen -->
+        <div id="createGameView" class="card">
+            <h1>🎭 Blood on the Clocktower</h1>
+            <p class="subtitle">Neues Spiel erstellen</p>
 
-        <form id="createGameForm">
-            <div class="form-group">
-                <label for="storytellerName">Dein Name (Erzähler):</label>
-                <input type="text" id="storytellerName" required placeholder="z.B. Max">
+            <form id="createGameForm">
+                <div class="form-group">
+                    <label for="storytellerName">Dein Name (Erzähler):</label>
+                    <input type="text" id="storytellerName" required placeholder="z.B. Max">
+                </div>
+
+                <div class="form-group">
+                    <label for="edition">Edition auswählen:</label>
+                    <select id="edition" required>
+                        <option value="">Bitte wählen...</option>
+                    </select>
+                </div>
+
+                <div class="characters-preview" id="charactersPreview">
+                    <h3>Verfügbare Charaktere in dieser Edition:</h3>
+                    <div id="charactersList" class="character-list"></div>
+                </div>
+
+                <button type="submit" id="submitBtn">Spiel erstellen</button>
+                <div class="loading" id="loading" style="display: none;">Lade...</div>
+            </form>
+        </div>
+
+        <!-- Ansicht: Spiel-Übersicht -->
+        <div id="gameOverview">
+            <div class="card">
+                <h1>🎭 Erzähler-Ansicht</h1>
+                <p class="subtitle">Verwalte dein Blood on the Clocktower Spiel</p>
+
+                <div class="game-info">
+                    <p><strong>Spiel-ID:</strong> <span id="gameId">-</span></p>
+                    <p><strong>Edition:</strong> <span id="editionName">-</span></p>
+                    <p><strong>Status:</strong> <span id="status">Warte auf Spieler...</span></p>
+                </div>
+
+                <div class="alert">
+                    <strong>📱 Spieler einladen:</strong><br>
+                    Teile diesen Link mit den Spielern:<br>
+                    <span id="joinUrl" style="font-family: monospace;">-</span>
+                    <button class="copy-btn" onclick="copyJoinUrl()">Kopieren</button>
+                </div>
+
+                <div id="startGameSection">
+                    <div class="form-group">
+                        <label for="playerCount">Spieleranzahl:</label>
+                        <input type="number" id="playerCount" min="5" max="15" value="7">
+                        <button onclick="startGame()" style="margin-left: 10px;">Spiel starten</button>
+                    </div>
+                </div>
+
+                <h2>Spieler (<span id="playerCountDisplay">0</span>):</h2>
+                <div class="players-list" id="playersList"></div>
             </div>
 
-            <div class="form-group">
-                <label for="edition">Edition auswählen:</label>
-                <select id="edition" required>
-                    <option value="">Bitte wählen...</option>
-                </select>
-            </div>
+            <div class="card" id="nightOrderCard" style="display: none;">
+                <h2>🌙 Nachtreihenfolge</h2>
+                <div class="night-order">
+                    <div class="night-section">
+                        <h3>Erste Nacht</h3>
+                        <div id="firstNightOrder"></div>
+                    </div>
 
-            <div class="characters-preview" id="charactersPreview">
-                <h3>Verfügbare Charaktere in dieser Edition:</h3>
-                <div id="charactersList" class="character-list"></div>
+                    <div class="night-section">
+                        <h3>Andere Nächte</h3>
+                        <div id="otherNightsOrder"></div>
+                    </div>
+                </div>
             </div>
-
-            <button type="submit" id="submitBtn">Spiel erstellen</button>
-            <div class="loading" id="loading" style="display: none;">Lade...</div>
-        </form>
+        </div>
     </div>
 
     <script>
-        const editionSelect = document.getElementById('edition');
-        const charactersPreview = document.getElementById('charactersPreview');
-        const charactersList = document.getElementById('charactersList');
-        const createGameForm = document.getElementById('createGameForm');
-        const loading = document.getElementById('loading');
-        const submitBtn = document.getElementById('submitBtn');
+        const urlParams = new URLSearchParams(window.location.search);
+        const gameId = urlParams.get('game');
+        const storytellerId = urlParams.get('storyteller');
 
-        // Lade Editionen beim Start
-        async function loadEditions() {
-            try {
-                const response = await fetch('/api/editions');
-                const editions = await response.json();
-
-                editions.forEach(edition => {
-                    const option = document.createElement('option');
-                    option.value = edition.id;
-                    option.textContent = edition.name;
-                    editionSelect.appendChild(option);
-                });
-            } catch (error) {
-                alert('Fehler beim Laden der Editionen: ' + error.message);
-            }
+        // Entscheide welche Ansicht angezeigt wird
+        if (gameId && storytellerId) {
+            // Zeige Spiel-Übersicht
+            document.getElementById('gameOverview').style.display = 'block';
+            initGameOverview();
+        } else {
+            // Zeige Erstellungsformular
+            document.getElementById('createGameView').style.display = 'block';
+            initCreateGame();
         }
 
-        // Zeige Charaktere wenn Edition ausgewählt
-        editionSelect.addEventListener('change', async (e) => {
-            const edition = e.target.value;
-            if (!edition) {
-                charactersPreview.style.display = 'none';
-                return;
+        // ===== ERSTELLUNGSFORMULAR =====
+        function initCreateGame() {
+            const editionSelect = document.getElementById('edition');
+            const charactersPreview = document.getElementById('charactersPreview');
+            const charactersList = document.getElementById('charactersList');
+            const createGameForm = document.getElementById('createGameForm');
+            const loading = document.getElementById('loading');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Lade Editionen
+            async function loadEditions() {
+                try {
+                    const response = await fetch('/api/editions');
+                    const editions = await response.json();
+
+                    editions.forEach(edition => {
+                        const option = document.createElement('option');
+                        option.value = edition.id;
+                        option.textContent = edition.name;
+                        editionSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    alert('Fehler beim Laden der Editionen: ' + error.message);
+                }
             }
 
-            try {
-                const response = await fetch(`/api/editions/${edition}/characters`);
-                const characters = await response.json();
-
-                charactersList.innerHTML = '';
-
-                // Zeige alle Charaktertypen
-                const typeNames = {
-                    'townsfolk': '👥 Townsfolk',
-                    'outsiders': '🎭 Outsiders',
-                    'minions': '😈 Minions',
-                    'demons': '👹 Demons'
-                };
-
-                for (const [type, chars] of Object.entries(characters)) {
-                    chars.forEach(char => {
-                        const div = document.createElement('div');
-                        div.className = 'character-item';
-                        div.textContent = char.name;
-                        div.title = char.ability;
-                        charactersList.appendChild(div);
-                    });
+            // Zeige Charaktere wenn Edition ausgewählt
+            editionSelect.addEventListener('change', async (e) => {
+                const edition = e.target.value;
+                if (!edition) {
+                    charactersPreview.style.display = 'none';
+                    return;
                 }
 
-                charactersPreview.style.display = 'block';
-            } catch (error) {
-                alert('Fehler beim Laden der Charaktere: ' + error.message);
+                try {
+                    const response = await fetch(`/api/editions/${edition}/characters`);
+                    const characters = await response.json();
+
+                    charactersList.innerHTML = '';
+
+                    for (const [type, chars] of Object.entries(characters)) {
+                        chars.forEach(char => {
+                            const div = document.createElement('div');
+                            div.className = 'character-item';
+                            div.textContent = char.name;
+                            div.title = char.ability;
+                            charactersList.appendChild(div);
+                        });
+                    }
+
+                    charactersPreview.style.display = 'block';
+                } catch (error) {
+                    alert('Fehler beim Laden der Charaktere: ' + error.message);
+                }
+            });
+
+            // Erstelle Spiel
+            createGameForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const storytellerName = document.getElementById('storytellerName').value;
+                const edition = editionSelect.value;
+
+                if (!storytellerName || !edition) {
+                    alert('Bitte alle Felder ausfüllen!');
+                    return;
+                }
+
+                loading.style.display = 'block';
+                submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/api/game/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            edition: edition,
+                            storyteller_name: storytellerName
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Fehler beim Erstellen des Spiels');
+                    }
+
+                    const data = await response.json();
+
+                    // Zeige Join-Link
+                    const joinUrl = `${window.location.origin}${data.join_url}`;
+                    alert(`Spiel erstellt! 🎉\n\nTeile diesen Link mit den Spielern:\n${joinUrl}\n\nDu wirst jetzt zur Erzähler-Ansicht weitergeleitet.`);
+
+                    // Weiterleitung zur Erzähler-Ansicht
+                    window.location.href = `/storyteller.html?game=${data.game_id}&storyteller=${data.storyteller_id}`;
+
+                } catch (error) {
+                    alert('Fehler: ' + error.message);
+                    loading.style.display = 'none';
+                    submitBtn.disabled = false;
+                }
+            });
+
+            loadEditions();
+        }
+
+        // ===== SPIEL-ÜBERSICHT =====
+        function initGameOverview() {
+            let gameData = null;
+
+            // Lade Spielübersicht
+            async function loadOverview() {
+                try {
+                    const response = await fetch(`/api/storyteller/${gameId}/${storytellerId}/overview`);
+
+                    if (!response.ok) {
+                        throw new Error('Fehler beim Laden der Übersicht');
+                    }
+
+                    gameData = await response.json();
+                    updateUI();
+
+                } catch (error) {
+                    console.error('Fehler:', error);
+                    alert('Fehler: ' + error.message);
+                }
             }
-        });
 
-        // Erstelle Spiel
-        createGameForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            function updateUI() {
+                if (!gameData) return;
 
-            const storytellerName = document.getElementById('storytellerName').value;
-            const edition = editionSelect.value;
+                // Spielinfo
+                document.getElementById('gameId').textContent = gameData.game_id;
+                document.getElementById('editionName').textContent = gameData.edition;
+                document.getElementById('status').textContent = gameData.started ? '✅ Gestartet' : 'Warte auf Spieler...';
 
-            if (!storytellerName || !edition) {
-                alert('Bitte alle Felder ausfüllen!');
-                return;
-            }
+                // Join URL
+                const joinUrl = `${window.location.origin}/join.html?game=${gameData.game_id}`;
+                document.getElementById('joinUrl').textContent = joinUrl;
 
-            loading.style.display = 'block';
-            submitBtn.disabled = true;
+                // Spielerliste
+                const playersList = document.getElementById('playersList');
+                playersList.innerHTML = '';
 
-            try {
-                const response = await fetch('/api/game/create', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        edition: edition,
-                        storyteller_name: storytellerName
-                    })
+                gameData.players.forEach(player => {
+                    const div = document.createElement('div');
+                    div.className = 'player-item';
+                    div.innerHTML = `
+                        <div>
+                            <div class="player-name">${player.name}</div>
+                            ${player.character ? `
+                                <div class="player-role">${player.character} (${getTypeLabel(player.type)})</div>
+                                <div class="player-ability">${player.ability}</div>
+                            ` : '<div class="player-role">Rolle noch nicht zugewiesen</div>'}
+                        </div>
+                    `;
+                    playersList.appendChild(div);
                 });
 
-                if (!response.ok) {
-                    throw new Error('Fehler beim Erstellen des Spiels');
+                document.getElementById('playerCountDisplay').textContent = gameData.players.length;
+
+                // Wenn gestartet, zeige Nachtreihenfolge
+                if (gameData.started && gameData.night_order) {
+                    document.getElementById('startGameSection').style.display = 'none';
+                    document.getElementById('nightOrderCard').style.display = 'block';
+
+                    // Erste Nacht
+                    const firstNightDiv = document.getElementById('firstNightOrder');
+                    firstNightDiv.innerHTML = '';
+                    gameData.night_order.first_night.forEach(item => {
+                        firstNightDiv.innerHTML += `
+                            <div class="night-item">
+                                <div class="night-order-number">${item.order}</div>
+                                <div>
+                                    <div class="night-character-name">${item.name}</div>
+                                    <div class="night-ability">${item.ability}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    // Andere Nächte
+                    const otherNightsDiv = document.getElementById('otherNightsOrder');
+                    otherNightsDiv.innerHTML = '';
+                    gameData.night_order.other_nights.forEach(item => {
+                        otherNightsDiv.innerHTML += `
+                            <div class="night-item">
+                                <div class="night-order-number">${item.order}</div>
+                                <div>
+                                    <div class="night-character-name">${item.name}</div>
+                                    <div class="night-ability">${item.ability}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
+            function getTypeLabel(type) {
+                const labels = {
+                    'townsfolk': 'Townsfolk',
+                    'outsiders': 'Outsider',
+                    'minions': 'Minion',
+                    'demons': 'Dämon'
+                };
+                return labels[type] || type;
+            }
+
+            // Auto-Refresh alle 5 Sekunden
+            setInterval(loadOverview, 5000);
+
+            // Initiales Laden
+            loadOverview();
+
+            // Mache Funktionen global verfügbar
+            window.startGame = async function() {
+                const playerCount = parseInt(document.getElementById('playerCount').value);
+
+                if (playerCount < 5 || playerCount > 15) {
+                    alert('Spieleranzahl muss zwischen 5 und 15 liegen!');
+                    return;
                 }
 
-                const data = await response.json();
+                if (!confirm(`Spiel mit ${playerCount} Spielern starten?\nRollen werden jetzt verteilt!`)) {
+                    return;
+                }
 
-                // Speichere Daten in localStorage
-                localStorage.setItem('gameId', data.game_id);
-                localStorage.setItem('storytellerId', data.storyteller_id);
+                try {
+                    const response = await fetch(`/api/game/${gameId}/start`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            player_count: playerCount
+                        })
+                    });
 
-                // Zeige Join-Link
-                const joinUrl = `${window.location.origin}${data.join_url}`;
-                alert(`Spiel erstellt! 🎉\n\nTeile diesen Link mit den Spielern:\n${joinUrl}\n\nDu wirst jetzt zur Erzähler-Ansicht weitergeleitet.`);
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.detail || 'Fehler beim Starten');
+                    }
 
-                // Weiterleitung zur Erzähler-Ansicht
-                window.location.href = `/storyteller.html?game=${data.game_id}&storyteller=${data.storyteller_id}`;
+                    alert('Spiel gestartet! 🎉\nRollen wurden verteilt!');
 
-            } catch (error) {
-                alert('Fehler: ' + error.message);
-                loading.style.display = 'none';
-                submitBtn.disabled = false;
-            }
-        });
+                    // Reload overview
+                    await loadOverview();
 
-        // Lade Editionen beim Start
-        loadEditions();
+                } catch (error) {
+                    alert('Fehler: ' + error.message);
+                }
+            };
+
+            window.copyJoinUrl = function() {
+                const joinUrl = document.getElementById('joinUrl').textContent;
+                navigator.clipboard.writeText(joinUrl).then(() => {
+                    alert('Link kopiert! 📋');
+                });
+            };
+        }
     </script>
 </body>
 </html>

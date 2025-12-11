@@ -217,6 +217,12 @@
 
             waitingView.style.display = 'none';
             roleView.style.display = 'block';
+
+            // Verstecke den Aktualisieren-Button im roleView, da das Spiel gestartet ist
+            const roleViewRefreshBtn = roleView.querySelector('.refresh-btn');
+            if (roleViewRefreshBtn) {
+                roleViewRefreshBtn.style.display = 'none';
+            }
         }
 
         function getTypeLabel(type) {
