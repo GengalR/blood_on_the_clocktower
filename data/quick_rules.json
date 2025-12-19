@@ -1,0 +1,44 @@
+{
+  "title": "🎭 Blood on the Clocktower - Schnellregeln",
+  "sections": [
+    {
+      "emoji": "1️⃣",
+      "title": "Siegbedingungen",
+      "rules": [
+        "<strong>Gut gewinnt</strong>, wenn der Demon stirbt",
+        "<strong>Böse gewinnt</strong>, wenn nur noch 2 Spieler leben (Travellers zählen nicht)"
+      ]
+    },
+    {
+      "emoji": "2️⃣",
+      "title": "Tag-Phase",
+      "rules": [
+        "<strong>Diskutieren:</strong>Es darf <span style=\"text-decoration: underline;\">alles</span> zu jederzeit gesagt werden (offen oder privat)",
+        "<strong>Nominieren:</strong> Jeder Spieler darf <span style=\"text-decoration: underline;\">einen</span> anderen nominieren und auch nur einmal pro Tag selber nominiert werden.",
+        "<strong>Hinrichtung:</strong> Bei 50%+ Stimmen wird nominierter Spieler hingerichtet",
+        "Nur <strong>1 Hinrichtung pro Tag</strong> möglich",
+        "<strong>Bewegung:</strong>Man muss nur während der Nominierung am Tisch sitzen!"
+      ]
+    },
+    {
+      "emoji": "3️⃣",
+      "title": "Nacht-Phase",
+      "rules": [
+        "<strong>Augen schließen:</strong> Alle Spieler haben Augen zu",
+        "<strong>Fähigkeiten:</strong> Storyteller weckt Charaktere einzeln",
+        "<strong>Demon tötet:</strong> Demon wählt ein Opfer",
+        "<strong>Morgen:</strong> Storyteller verkündet, wer gestorben ist"
+      ]
+    },
+    {
+      "emoji": "4️⃣",
+      "title": "Tod & Abstimmen",
+      "rules": [
+        "<strong>Sprechen erlaubt:</strong> Tote Spieler dürfen weiter reden",
+        "<strong>1 Stimme übrig:</strong> Tote haben nur noch 1 Stimme fürs ganze Spiel",
+        "<strong>Team-Sieg:</strong> Tote gewinnen/verlieren mit ihrem Team"
+      ]
+    }
+  ]
+}
+

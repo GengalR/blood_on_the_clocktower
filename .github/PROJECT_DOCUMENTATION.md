@@ -12,6 +12,7 @@
 - ✅ Storyteller receives overview + night phase order
 - ✅ Players only see their own role
 - ✅ Real-time updates via polling
+- ✅ Quick Rules Modal (in-game help for players & storyteller)
 
 ---
 
@@ -542,6 +543,17 @@ Player waits → GET /api/role
 
 ## 📄 CHANGELOG
 
+### v1.1 - 2025-01-19 (Quick Rules Feature)
+- ✅ **New Feature:** Quick Rules Modal
+  - Zugänglich über Button "📜 Regeln" (oben rechts)
+  - 4 Kernregeln auf Deutsch (Siegbedingungen, Tag, Nacht, Tod & Abstimmen)
+  - Modal mit ESC, Click-outside und X-Button schließbar
+  - Keyboard-Navigation und Screen-Reader kompatibel (ARIA)
+  - Responsive Design für Mobile (< 600px)
+  - Implementiert in: `player.html` und `storyteller.html`
+  - Keine Backend-Änderungen notwendig (Pure Frontend)
+- 📝 **Dokumentation:** `.github/QUICK_RULES_TESTING.md` hinzugefügt
+
 ### v1.0 - 2025-01-19 (Initial Release)
 - ✅ FastAPI backend with all endpoints
 - ✅ 4 HTML pages (index, join, storyteller, player)
@@ -577,5 +589,5 @@ Player waits → GET /api/role
 
 **Created:** 2025-01-19  
 **Last Updated:** 2025-01-19  
-**Version:** 1.0.0
+**Version:** 1.1.0 (Quick Rules Feature)
 

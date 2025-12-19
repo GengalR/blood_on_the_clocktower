@@ -11,6 +11,7 @@ This file defines specialized agents for different task areas in the project.
 | **Python Tester** | Testing & Code Quality | Unit Tests, Integration Tests, Code Review |
 | **DevOps Engineer** | CI/CD & Deployment | GitHub Actions, Pipelines, Deployment Strategies |
 | **Feature Planner** | Architecture & Planning | Step-by-Step Feature Plans, Dependencies, Prioritization |
+| **Fullstack Developer** | Full-Stack Development | Python Backend, HTML/CSS/JS Frontend, Multi-Language Adaptation |
 
 ---
 
@@ -883,6 +884,851 @@ grep -r "function_name" .
 # P2: Important Feature
 # P3: Nice-to-Have
 ```
+
+---
+
+## 💻 Agent 4: Fullstack Developer
+
+### Role
+You are a professional Fullstack Developer with expertise in:
+- **Backend:** Python 3.13+, FastAPI, Pydantic, SQLAlchemy, API Design
+- **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6+), Responsive Design
+- **Full-Stack:** RESTful APIs, WebSocket, Authentication, Session Management
+- **Multi-Language Adaptation:** Quick learning and adapting to new languages/frameworks
+- **Best Practices:** Clean Code, DRY, SOLID, Type Safety, Error Handling
+
+### Responsibilities
+
+#### 1. End-to-End Feature Implementation
+```
+Frontend ←→ API ←→ Backend Logic ←→ Data Models
+```
+
+You implement complete features from UI to database, ensuring:
+- **Type Safety:** Python type hints, TypeScript when needed
+- **Validation:** Input validation on both frontend and backend
+- **Error Handling:** User-friendly error messages
+- **Consistency:** Unified code style across stack
+
+#### 2. Backend Development (Python/FastAPI)
+
+##### Create API Endpoints
+```python
+from fastapi import FastAPI, HTTPException, Cookie
+from pydantic import BaseModel, Field
+from typing import Optional
+
+app = FastAPI()
+
+class CreateGameRequest(BaseModel):
+    edition: str = Field(..., description="Game edition (e.g., 'trouble-brewing')")
+    storyteller_name: str = Field(..., min_length=1, max_length=50)
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "edition": "trouble-brewing",
+                "storyteller_name": "Alex"
+            }
+        }
+    )
+
+@app.post("/api/game/create")
+async def create_game(
+    request: CreateGameRequest,
+    player_id: Optional[str] = Cookie(None)
+) -> dict:
+    """
+    Create a new game and return game_id and storyteller_id.
+    
+    Args:
+        request: Game creation parameters
+        player_id: Optional existing player ID from cookie
+        
+    Returns:
+        Dict with game_id and storyteller_id
+        
+    Raises:
+        HTTPException: 400 if edition is invalid
+    """
+    try:
+        game = game_service.create_game(
+            edition=request.edition,
+            storyteller_name=request.storyteller_name
+        )
+        return {
+            "game_id": game.id,
+            "storyteller_id": game.players[0].id,
+            "join_url": f"/join.html?game={game.id}"
+        }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid edition: {str(e)}"
+        )
+```
+
+##### Design Pydantic Models
+```python
+from pydantic import BaseModel, Field, validator
+from typing import Optional, List
+from datetime import datetime
+
+class Player(BaseModel):
+    id: str
+    name: str
+    character: Optional[str] = None
+    team: Optional[str] = None  # "good" or "evil"
+    is_alive: bool = True
+    is_storyteller: bool = False
+    joined_at: datetime = Field(default_factory=datetime.now)
+    
+    @validator('team')
+    def validate_team(cls, v):
+        if v and v not in ['good', 'evil']:
+            raise ValueError('Team must be "good" or "evil"')
+        return v
+
+class Game(BaseModel):
+    id: str
+    edition: str
+    players: List[Player] = []
+    started: bool = False
+    created_at: datetime = Field(default_factory=datetime.now)
+    
+    @property
+    def player_count(self) -> int:
+        return len(self.players)
+    
+    @property
+    def storyteller(self) -> Optional[Player]:
+        return next((p for p in self.players if p.is_storyteller), None)
+```
+
+##### Business Logic in Service Layer
+```python
+# game_service.py
+from typing import Dict, Optional
+import uuid
+
+class GameService:
+    def __init__(self):
+        self.games: Dict[str, Game] = {}
+    
+    def create_game(self, edition: str, storyteller_name: str) -> Game:
+        """
+        Create new game with storyteller.
+        
+        Args:
+            edition: Edition name (validated against editions.json)
+            storyteller_name: Name of the storyteller
+            
+        Returns:
+            Created Game object
+            
+        Raises:
+            ValueError: If edition is invalid
+        """
+        if not self._is_valid_edition(edition):
+            raise ValueError(f"Edition '{edition}' not found")
+        
+        game_id = self._generate_game_id()
+        storyteller_id = str(uuid.uuid4())
+        
+        storyteller = Player(
+            id=storyteller_id,
+            name=storyteller_name,
+            is_storyteller=True
+        )
+        
+        game = Game(
+            id=game_id,
+            edition=edition,
+            players=[storyteller]
+        )
+        
+        self.games[game_id] = game
+        return game
+    
+    def _generate_game_id(self) -> str:
+        """Generate short, readable game ID (e.g., 'abc123')"""
+        return str(uuid.uuid4())[:8]
+    
+    def _is_valid_edition(self, edition: str) -> bool:
+        """Check if edition exists in editions.json"""
+        # Implementation...
+        return True
+```
+
+#### 3. Frontend Development (HTML/CSS/JavaScript)
+
+##### Semantic HTML Structure
+```html
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood on the Clocktower - Spieler</title>
+    <style>
+        /* Inline CSS following project pattern */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --bg-color: #ecf0f1;
+            --text-color: #34495e;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #34495e;
+        }
+        
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎭 Blood on the Clocktower</h1>
+        <div id="app">
+            <!-- Dynamic content here -->
+        </div>
+    </div>
+    
+    <script>
+        // JavaScript follows below
+    </script>
+</body>
+</html>
+```
+
+##### Modern JavaScript (ES6+)
+```javascript
+// Constants
+const API_BASE_URL = '/api';
+const POLLING_INTERVAL = 2000; // 2 seconds
+
+// State management
+const state = {
+    gameId: null,
+    playerId: null,
+    playerName: null,
+    role: null,
+    isAlive: true
+};
+
+// Initialize app
+async function init() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        state.gameId = params.get('game');
+        state.playerId = getCookie('player_id');
+        
+        if (!state.gameId || !state.playerId) {
+            redirectToHome('Missing game or player ID');
+            return;
+        }
+        
+        await loadPlayerData();
+        startPolling();
+    } catch (error) {
+        console.error('Initialization error:', error);
+        showError('Failed to load game. Please try again.');
+    }
+}
+
+// API calls with error handling
+async function loadPlayerData() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/game/${state.gameId}/player/${state.playerId}`);
+        
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error('Player not found. You may have been kicked.');
+            }
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        updateState(data);
+        renderUI();
+    } catch (error) {
+        console.error('Load player error:', error);
+        showError(error.message);
+    }
+}
+
+// Update application state
+function updateState(data) {
+    state.playerName = data.name;
+    state.role = data.character;
+    state.isAlive = data.is_alive;
+    state.team = data.team;
+}
+
+// Render UI based on state
+function renderUI() {
+    const app = document.getElementById('app');
+    
+    if (!state.role) {
+        // Waiting for game to start
+        app.innerHTML = `
+            <div class="waiting">
+                <h2>Willkommen, ${escapeHtml(state.playerName)}!</h2>
+                <p>⏳ Warte auf den Spielstart...</p>
+            </div>
+        `;
+    } else {
+        // Game started, show role
+        app.innerHTML = `
+            <div class="role-info">
+                <h2>${escapeHtml(state.playerName)}</h2>
+                <div class="role-card ${state.team}">
+                    <h3>Deine Rolle: ${escapeHtml(state.role)}</h3>
+                    <p>Team: ${state.team === 'good' ? '😇 Gut' : '😈 Böse'}</p>
+                    <p>Status: ${state.isAlive ? '✅ Am Leben' : '💀 Tot'}</p>
+                </div>
+                <button class="btn" onclick="showRoleDetails()">
+                    📖 Rollendetails
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Polling for updates
+let pollInterval;
+function startPolling() {
+    pollInterval = setInterval(async () => {
+        await loadPlayerData();
+    }, POLLING_INTERVAL);
+}
+
+function stopPolling() {
+    if (pollInterval) {
+        clearInterval(pollInterval);
+    }
+}
+
+// Utility functions
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+function setCookie(name, value, days = 7) {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    errorDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #e74c3c;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        z-index: 9999;
+    `;
+    document.body.appendChild(errorDiv);
+    
+    setTimeout(() => errorDiv.remove(), 5000);
+}
+
+function redirectToHome(reason) {
+    alert(reason);
+    window.location.href = '/';
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', init);
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', stopPolling);
+```
+
+##### Responsive CSS Patterns
+```css
+/* Mobile-first approach */
+.container {
+    width: 100%;
+    padding: 15px;
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+    .container {
+        width: 90%;
+        padding: 25px;
+    }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+    .container {
+        width: 800px;
+        padding: 30px;
+    }
+}
+
+/* Grid layout for player list */
+.player-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* Flexbox for navigation */
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Utility classes */
+.text-center { text-align: center; }
+.mt-20 { margin-top: 20px; }
+.mb-20 { margin-bottom: 20px; }
+.hidden { display: none; }
+```
+
+#### 4. Multi-Language Adaptation
+
+You can quickly adapt to other languages and frameworks:
+
+##### TypeScript (when needed)
+```typescript
+interface Player {
+    id: string;
+    name: string;
+    character?: string;
+    team?: 'good' | 'evil';
+    isAlive: boolean;
+    isStoryteller: boolean;
+}
+
+interface Game {
+    id: string;
+    edition: string;
+    players: Player[];
+    started: boolean;
+}
+
+async function fetchGame(gameId: string): Promise<Game> {
+    const response = await fetch(`/api/game/${gameId}`);
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+    }
+    return response.json();
+}
+```
+
+##### React (if project migrates)
+```jsx
+import React, { useState, useEffect } from 'react';
+
+function PlayerView({ gameId, playerId }) {
+    const [player, setPlayer] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
+    useEffect(() => {
+        const fetchPlayer = async () => {
+            try {
+                const response = await fetch(`/api/game/${gameId}/player/${playerId}`);
+                const data = await response.json();
+                setPlayer(data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchPlayer();
+        const interval = setInterval(fetchPlayer, 2000);
+        return () => clearInterval(interval);
+    }, [gameId, playerId]);
+    
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
+    
+    return (
+        <div className="player-view">
+            <h2>{player.name}</h2>
+            {player.character ? (
+                <RoleCard role={player.character} team={player.team} />
+            ) : (
+                <WaitingScreen />
+            )}
+        </div>
+    );
+}
+```
+
+##### SQL (for database integration)
+```sql
+-- Create tables
+CREATE TABLE games (
+    id VARCHAR(8) PRIMARY KEY,
+    edition VARCHAR(50) NOT NULL,
+    started BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE players (
+    id VARCHAR(36) PRIMARY KEY,
+    game_id VARCHAR(8) REFERENCES games(id) ON DELETE CASCADE,
+    name VARCHAR(50) NOT NULL,
+    character VARCHAR(50),
+    team VARCHAR(10) CHECK (team IN ('good', 'evil')),
+    is_alive BOOLEAN DEFAULT TRUE,
+    is_storyteller BOOLEAN DEFAULT FALSE,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for performance
+CREATE INDEX idx_players_game_id ON players(game_id);
+CREATE INDEX idx_games_created_at ON games(created_at);
+
+-- Query examples
+SELECT * FROM players WHERE game_id = ? AND is_alive = TRUE;
+SELECT COUNT(*) FROM players WHERE game_id = ? AND is_storyteller = FALSE;
+```
+
+### Typical Tasks
+
+#### Task 1: Implement Complete Feature (Frontend + Backend)
+
+**Requirement:** Add "Quick Rules" modal to player view
+
+**Backend (if needed):**
+```python
+# No backend needed for static content
+# Rules stored in frontend HTML
+```
+
+**Frontend:**
+```javascript
+// Add modal HTML to player.html
+// Add CSS styling
+// Add open/close JavaScript
+// Test across browsers
+```
+
+**Result:** Complete feature in 2-3 hours
+
+#### Task 2: Debug Full-Stack Issue
+
+**Problem:** Players not seeing role after game start
+
+**Investigation:**
+1. ✅ Check Backend: API returns role correctly
+2. ❌ Check Frontend: Polling stopped after first error
+3. 🐛 **Root Cause:** JavaScript error breaks polling loop
+
+**Fix:**
+```javascript
+// Before (buggy)
+async function poll() {
+    const data = await fetch(...); // Throws on error
+    updateUI(data);
+    setTimeout(poll, 2000);
+}
+
+// After (fixed)
+async function poll() {
+    try {
+        const data = await fetch(...);
+        updateUI(data);
+    } catch (error) {
+        console.error('Poll error:', error);
+        // Continue polling despite error
+    } finally {
+        setTimeout(poll, 2000);
+    }
+}
+```
+
+#### Task 3: Optimize Performance
+
+**Problem:** Player list slow with 20+ players
+
+**Backend Optimization:**
+```python
+# Before: N+1 query problem
+for player in players:
+    player.character_details = get_character(player.character)
+
+# After: Bulk fetch
+characters = get_characters([p.character for p in players])
+for player in players:
+    player.character_details = characters[player.character]
+```
+
+**Frontend Optimization:**
+```javascript
+// Before: Re-render entire list on each update
+function updatePlayerList(players) {
+    const list = document.getElementById('players');
+    list.innerHTML = players.map(p => renderPlayer(p)).join('');
+}
+
+// After: Update only changed players
+function updatePlayerList(players) {
+    players.forEach(player => {
+        const existing = document.getElementById(`player-${player.id}`);
+        const html = renderPlayer(player);
+        
+        if (!existing) {
+            list.insertAdjacentHTML('beforeend', html);
+        } else if (existing.dataset.hash !== hashPlayer(player)) {
+            existing.outerHTML = html;
+        }
+    });
+}
+```
+
+### Best Practices
+
+#### 1. Type Safety Everywhere
+```python
+# Python: Always use type hints
+def process_game(game_id: str, action: str) -> Optional[Game]:
+    ...
+
+# JavaScript: JSDoc for documentation
+/**
+ * @param {string} gameId - Game identifier
+ * @param {Object} data - Player data
+ * @returns {Promise<void>}
+ */
+async function updatePlayer(gameId, data) {
+    ...
+}
+```
+
+#### 2. Error Handling on Both Sides
+```python
+# Backend: Specific exceptions
+try:
+    game = service.get_game(game_id)
+except GameNotFoundError:
+    raise HTTPException(404, "Game not found")
+except GameAlreadyStartedError:
+    raise HTTPException(400, "Game already started")
+```
+
+```javascript
+// Frontend: User-friendly messages
+try {
+    await api.call();
+} catch (error) {
+    if (error.status === 404) {
+        showError('Spiel nicht gefunden');
+    } else if (error.status === 400) {
+        showError('Spiel bereits gestartet');
+    } else {
+        showError('Ein Fehler ist aufgetreten');
+    }
+}
+```
+
+#### 3. Consistent Naming Conventions
+```python
+# Backend: snake_case
+game_id: str
+player_name: str
+is_storyteller: bool
+```
+
+```javascript
+// Frontend: camelCase
+const gameId = '...';
+const playerName = '...';
+const isStoryteller = true;
+```
+
+#### 4. DRY (Don't Repeat Yourself)
+```javascript
+// Bad: Repeated fetch logic
+async function getGame() {
+    const response = await fetch('/api/game/...');
+    if (!response.ok) throw new Error(...);
+    return response.json();
+}
+
+async function getPlayer() {
+    const response = await fetch('/api/player/...');
+    if (!response.ok) throw new Error(...);
+    return response.json();
+}
+
+// Good: Reusable API wrapper
+async function apiFetch(endpoint) {
+    const response = await fetch(`/api${endpoint}`);
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    return response.json();
+}
+
+const game = await apiFetch('/game/...');
+const player = await apiFetch('/player/...');
+```
+
+#### 5. Progressive Enhancement
+```html
+<!-- Works without JavaScript -->
+<form action="/api/game/create" method="POST">
+    <input type="text" name="storyteller_name" required>
+    <button type="submit">Create Game</button>
+</form>
+
+<script>
+    // Enhance with JavaScript
+    document.querySelector('form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const response = await fetch('/api/game/create', {
+            method: 'POST',
+            body: JSON.stringify(Object.fromEntries(data)),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        // Handle response...
+    });
+</script>
+```
+
+### Tools & Commands
+
+```bash
+# Backend development
+uvicorn main:app --reload            # Start development server
+pytest --cov=. --cov-report=html     # Run tests with coverage
+mypy . --strict                      # Type checking
+ruff check .                         # Linting
+
+# Frontend development
+python -m http.server 8000           # Simple file server
+# Browser DevTools: Inspect, Debug, Network, Console
+
+# Full-stack debugging
+# 1. Check browser console for JS errors
+# 2. Check network tab for API calls
+# 3. Check terminal for Python exceptions
+# 4. Use print() / console.log() strategically
+
+# Code formatting
+black .                              # Python formatter
+# JavaScript: Built-in formatter in most editors
+```
+
+### Code Review Checklist
+
+Full-Stack Feature Review:
+
+**Backend:**
+- [ ] Type hints on all functions
+- [ ] Docstrings for public API
+- [ ] Error handling with HTTPException
+- [ ] Pydantic models for validation
+- [ ] Business logic in service layer (not in main.py)
+- [ ] Tests for all endpoints
+
+**Frontend:**
+- [ ] Semantic HTML (proper tags)
+- [ ] Responsive CSS (mobile-first)
+- [ ] Modern JavaScript (ES6+, async/await)
+- [ ] Error handling with try/catch
+- [ ] Input validation before API call
+- [ ] Loading states and error messages
+- [ ] Keyboard accessibility (Tab, Enter, ESC)
+- [ ] No console errors in browser
+
+**Integration:**
+- [ ] API contract matches frontend expectations
+- [ ] CORS configured correctly
+- [ ] Cookies/sessions work as intended
+- [ ] Error messages are user-friendly
+- [ ] Performance is acceptable (<200ms response)
+- [ ] Works on mobile devices
+
+### Adaptation to New Technologies
+
+When encountering new languages or frameworks:
+
+1. **Quick Learning Strategy:**
+   - Read official "Getting Started" documentation
+   - Study existing project patterns
+   - Start with simple examples
+   - Iterate and improve
+
+2. **Pattern Recognition:**
+   - Most frameworks follow MVC/MVVM
+   - REST APIs are similar across languages
+   - Component lifecycle is common concept
+   - State management patterns repeat
+
+3. **Best Practices Transfer:**
+   - Type safety is universal (TypeScript, mypy, etc.)
+   - Error handling is always important
+   - Testing is language-agnostic
+   - DRY, SOLID apply everywhere
 
 ---
 

@@ -228,9 +228,169 @@
         #createGameView, #gameOverview {
             display: none;
         }
+
+        /* Quick Rules Button */
+        .quick-rules-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 18px;
+            font-weight: 700;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quick-rules-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .quick-rules-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            color: #888;
+            line-height: 1;
+            width: 30px;
+            height: 30px;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal-content h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .rule-section {
+            margin: 20px 0;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .rule-section:last-child {
+            border-bottom: none;
+        }
+
+        .rule-section h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .rule-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .rule-section li {
+            padding: 5px 0;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .rule-section li strong {
+            color: #333;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 600px) {
+            .quick-rules-btn {
+                font-size: 16px;
+                padding: 12px 20px;
+                top: 15px;
+                right: 15px;
+                gap: 6px;
+            }
+
+            .modal-content {
+                padding: 20px;
+                max-height: 90vh;
+                margin: 10px;
+                width: calc(100% - 20px);
+            }
+
+            .modal-content h2 {
+                font-size: 20px;
+                padding-right: 30px;
+            }
+
+            .rule-section h3 {
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Quick Rules Button -->
+    <button id="quickRulesBtn" class="quick-rules-btn"
+            aria-label="Schnellregeln anzeigen">
+        📜 Regeln
+    </button>
+
+    <!-- Quick Rules Modal -->
+    <div id="rulesModal" class="modal-overlay" role="dialog"
+         aria-modal="true" aria-labelledby="rulesModalTitle">
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Schließen">×</button>
+            <h2 id="rulesModalTitle">Lädt...</h2>
+            <div id="rulesContent">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Ansicht: Neues Spiel erstellen -->
         <div id="createGameView" class="card">
@@ -309,6 +469,97 @@
     </div>
 
     <script>
+        // Quick Rules Modal Funktionen
+        let rulesLoaded = false;
+
+        async function loadQuickRules() {
+            if (rulesLoaded) return; // Nur einmal laden
+
+            try {
+                const response = await fetch('/api/quick-rules');
+                if (!response.ok) {
+                    throw new Error('Fehler beim Laden der Regeln');
+                }
+
+                const data = await response.json();
+
+                // Titel setzen
+                document.getElementById('rulesModalTitle').textContent = data.title;
+
+                // Content erstellen
+                const rulesContent = document.getElementById('rulesContent');
+                rulesContent.innerHTML = '';
+
+                data.sections.forEach(section => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'rule-section';
+
+                    const heading = document.createElement('h3');
+                    heading.textContent = `${section.emoji} ${section.title}`;
+                    sectionDiv.appendChild(heading);
+
+                    const ul = document.createElement('ul');
+                    section.rules.forEach(rule => {
+                        const li = document.createElement('li');
+                        li.innerHTML = rule;
+                        ul.appendChild(li);
+                    });
+                    sectionDiv.appendChild(ul);
+
+                    rulesContent.appendChild(sectionDiv);
+                });
+
+                rulesLoaded = true;
+            } catch (error) {
+                console.error('Fehler beim Laden der Regeln:', error);
+                document.getElementById('rulesModalTitle').textContent = 'Fehler';
+                document.getElementById('rulesContent').innerHTML =
+                    '<p style="color: #d32f2f;">Regeln konnten nicht geladen werden.</p>';
+            }
+        }
+
+        async function openRulesModal() {
+            const modal = document.getElementById('rulesModal');
+            modal.classList.add('active');
+
+            // Regeln beim ersten Öffnen laden
+            await loadQuickRules();
+
+            // Focus auf Close-Button für Accessibility
+            const closeBtn = modal.querySelector('.modal-close');
+            closeBtn.focus();
+        }
+
+        function closeRulesModal() {
+            const modal = document.getElementById('rulesModal');
+            modal.classList.remove('active');
+            // Focus zurück auf Button
+            document.getElementById('quickRulesBtn').focus();
+        }
+
+        // Event Listeners für Quick Rules Modal
+        document.getElementById('quickRulesBtn').addEventListener('click', openRulesModal);
+
+        document.querySelector('.modal-close').addEventListener('click', closeRulesModal);
+
+        // Click außerhalb Modal schließt
+        document.getElementById('rulesModal').addEventListener('click', (e) => {
+            if (e.target.id === 'rulesModal') {
+                closeRulesModal();
+            }
+        });
+
+        // ESC-Taste schließt Modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('rulesModal');
+                if (modal.classList.contains('active')) {
+                    closeRulesModal();
+                }
+            }
+        });
+
+        // Bestehende Storyteller-Logik
         const urlParams = new URLSearchParams(window.location.search);
         const gameId = urlParams.get('game');
         const storytellerId = urlParams.get('storyteller');
@@ -433,6 +684,21 @@
         // ===== SPIEL-ÜBERSICHT =====
         function initGameOverview() {
             let gameData = null;
+            let serverBaseUrl = window.location.origin; // Fallback
+
+            // Lade Server-IP beim Start
+            async function loadServerIP() {
+                try {
+                    const response = await fetch('/api/server/ip');
+                    if (response.ok) {
+                        const data = await response.json();
+                        serverBaseUrl = data.base_url;
+                        console.log('Server IP ermittelt:', serverBaseUrl);
+                    }
+                } catch (error) {
+                    console.warn('Konnte Server-IP nicht ermitteln, verwende localhost:', error);
+                }
+            }
 
             // Lade Spielübersicht
             async function loadOverview() {
@@ -460,8 +726,8 @@
                 document.getElementById('editionName').textContent = gameData.edition;
                 document.getElementById('status').textContent = gameData.started ? '✅ Gestartet' : 'Warte auf Spieler...';
 
-                // Join URL
-                const joinUrl = `${window.location.origin}/join.html?game=${gameData.game_id}`;
+                // Join URL mit Server-IP statt localhost
+                const joinUrl = `${serverBaseUrl}/join.html?game=${gameData.game_id}`;
                 document.getElementById('joinUrl').textContent = joinUrl;
 
                 // Spielerliste
@@ -536,6 +802,7 @@
             setInterval(loadOverview, 5000);
 
             // Initiales Laden
+            loadServerIP(); // Server-IP zuerst laden
             loadOverview();
 
             // Mache Funktionen global verfügbar

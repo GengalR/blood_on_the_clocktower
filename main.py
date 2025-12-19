@@ -4,10 +4,57 @@ from fastapi.responses import HTMLResponse, FileResponse
 from models import CreateGameRequest, JoinGameRequest, StartGameRequest
 from game_service import game_service
 import uvicorn
+import socket
 
 app = FastAPI(title="Blood on the Clocktower")
 
+
+def get_local_ip() -> str:
+    """
+    Ermittelt die lokale IP-Adresse des Servers im Netzwerk.
+
+    Returns:
+        IP-Adresse als String (z.B. "192.168.1.100")
+    """
+    try:
+        # Erstelle temporäre Socket-Verbindung um lokale IP zu ermitteln
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # Verbinde zu externer Adresse (muss nicht erreichbar sein)
+        s.connect(("8.8.8.8", 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+        return local_ip
+    except Exception:
+        # Fallback zu localhost wenn Ermittlung fehlschlägt
+        return "localhost"
+
+
 # API Endpoints
+
+@app.get("/api/server/ip")
+async def get_server_ip():
+    """Gibt die lokale IP-Adresse des Servers zurück"""
+    local_ip = get_local_ip()
+    return {
+        "ip": local_ip,
+        "port": 8000,
+        "base_url": f"http://{local_ip}:8000"
+    }
+
+
+@app.get("/api/quick-rules")
+async def get_quick_rules():
+    """Gibt die Schnellregeln aus der zentralen JSON-Datei zurück"""
+    try:
+        with open('data/quick_rules.json', 'r', encoding='utf-8') as f:
+            import json
+            rules = json.load(f)
+        return rules
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Quick Rules Datei nicht gefunden")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Fehler beim Laden der Regeln: {str(e)}")
+
 
 @app.get("/api/editions")
 async def get_editions():
