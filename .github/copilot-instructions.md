@@ -1,92 +1,92 @@
 # 🤖 Copilot Instructions - Blood on the Clocktower Project
 
-## 🎯 Projekt-Kontext
+## 🎯 Project Context
 
-**Projekttyp:** Web-Anwendung (FastAPI + Vanilla JavaScript)  
-**Zweck:** Digitale Umsetzung des Spiels "Blood on the Clocktower"  
-**Tech-Stack:** Python 3.13+, FastAPI, Pydantic, Uvicorn, Vanilla HTML/CSS/JS
+**Project Type:** Web Application (FastAPI + Vanilla JavaScript)  
+**Purpose:** Digital implementation of the game "Blood on the Clocktower"  
+**Tech Stack:** Python 3.13+, FastAPI, Pydantic, Uvicorn, Vanilla HTML/CSS/JS
 
 ---
 
-## 📋 GRUNDPRINZIPIEN
+## 📋 CORE PRINCIPLES
 
-### 1. **Ehrlichkeit vor allem**
-- ✅ Sage klar, wenn du etwas **nicht weißt**
-- ✅ Gib zu, wenn eine Lösung **unsicher** ist
-- ✅ Verweise auf Dokumentation statt zu raten
-- ❌ Erfinde KEINE Funktionen oder APIs
-- ❌ Gib keine Antwort, wenn du nicht sicher bist
+### 1. **Honesty Above All**
+- ✅ Clearly state when you **don't know** something
+- ✅ Admit when a solution is **uncertain**
+- ✅ Refer to documentation instead of guessing
+- ❌ NEVER invent functions or APIs
+- ❌ Don't provide answers if you're not sure
 
-**Beispiel:**
+**Example:**
 ```
-❌ "Diese Funktion existiert in FastAPI 0.104.0"
-✅ "Ich bin nicht sicher ob diese Funktion existiert. Lass mich die Dokumentation prüfen oder wir testen es."
+❌ "This function exists in FastAPI 0.104.0"
+✅ "I'm not sure if this function exists. Let me check the documentation or we can test it."
 ```
 
 ### 2. **Step-by-Step Approach**
-Jede Aufgabe wird in kleine, testbare Schritte zerlegt:
+Every task is broken down into small, testable steps:
 
 ```
-Aufgabe: "Füge Spieler-Kick-Funktion hinzu"
+Task: "Add player kick function"
 
-Schritt 1: API-Endpoint erstellen
-├─ Test: curl-Request zum neuen Endpoint
-└─ Erwartung: 404 wenn Spieler nicht existiert
+Step 1: Create API endpoint
+├─ Test: curl request to new endpoint
+└─ Expectation: 404 when player doesn't exist
 
-Schritt 2: Service-Logik implementieren
-├─ Test: Unit-Test für kick_player()
-└─ Erwartung: Spieler wird aus Liste entfernt
+Step 2: Implement service logic
+├─ Test: Unit test for kick_player()
+└─ Expectation: Player is removed from list
 
-Schritt 3: Frontend-Button hinzufügen
-├─ Test: Button erscheint in UI
-└─ Erwartung: Fetch zu API bei Click
+Step 3: Add frontend button
+├─ Test: Button appears in UI
+└─ Expectation: Fetch to API on click
 
-Schritt 4: Integration testen
-├─ Test: E2E - Spieler wird gekickt und verschwindet
-└─ Erwartung: Andere Spieler bleiben unberührt
+Step 4: Integration test
+├─ Test: E2E - Player is kicked and disappears
+└─ Expectation: Other players remain untouched
 ```
 
-### 3. **Testbarkeit ist Pflicht**
-- Jede Änderung muss **testbar** sein
-- Schreibe **vor** der Implementierung wie getestet wird
-- Nutze konkrete Test-Szenarien
+### 3. **Testability is Mandatory**
+- Every change must be **testable**
+- Write **before** implementation how it will be tested
+- Use concrete test scenarios
 
 ---
 
-## 🏗️ CODE-STANDARDS
+## 🏗️ CODE STANDARDS
 
 ### Python (Backend)
 
-#### Type Hints immer verwenden
+#### Always Use Type Hints
 ```python
-# ✅ GUT
+# ✅ GOOD
 def create_game(edition: str, storyteller_name: str) -> Game:
     game_id: str = str(uuid.uuid4())[:8]
     return Game(id=game_id, edition=edition)
 
-# ❌ SCHLECHT
+# ❌ BAD
 def create_game(edition, storyteller_name):
     game_id = str(uuid.uuid4())[:8]
     return Game(id=game_id, edition=edition)
 ```
 
-#### Error Handling mit aussagekräftigen Messages
+#### Error Handling with Descriptive Messages
 ```python
-# ✅ GUT
+# ✅ GOOD
 if game_id not in self.games:
     raise HTTPException(
         status_code=404, 
-        detail=f"Spiel mit ID '{game_id}' nicht gefunden. Prüfe ob die URL korrekt ist."
+        detail=f"Game with ID '{game_id}' not found. Check if the URL is correct."
     )
 
-# ❌ SCHLECHT
+# ❌ BAD
 if game_id not in self.games:
     raise HTTPException(status_code=404, detail="Not found")
 ```
 
-#### Pydantic Models für alle Datenstrukturen
+#### Pydantic Models for All Data Structures
 ```python
-# ✅ GUT
+# ✅ GOOD
 class CreateGameRequest(BaseModel):
     edition: str
     storyteller_name: str
@@ -100,27 +100,27 @@ class CreateGameRequest(BaseModel):
         }
     )
 
-# ❌ SCHLECHT - Rohe Dicts verwenden
+# ❌ BAD - Using raw dicts
 @app.post("/game/create")
 async def create_game(data: dict):
-    edition = data.get("edition")  # Keine Validation!
+    edition = data.get("edition")  # No validation!
 ```
 
-#### Docstrings für alle öffentlichen Funktionen
+#### Docstrings for All Public Functions
 ```python
 def start_game(self, game_id: str, player_count: int) -> Game:
     """
-    Startet das Spiel und verteilt Rollen an Spieler.
+    Starts the game and distributes roles to players.
     
     Args:
-        game_id: Eindeutige Spiel-ID
-        player_count: Anzahl der Spieler (ohne Erzähler)
+        game_id: Unique game ID
+        player_count: Number of players (excluding storyteller)
         
     Returns:
-        Game-Objekt mit gestarteten Spiel und verteilten Rollen
+        Game object with started game and distributed roles
         
     Raises:
-        ValueError: Wenn Spiel nicht existiert oder ungültige Spielerzahl
+        ValueError: If game doesn't exist or invalid player count
         
     Example:
         >>> game = service.start_game("abc123", 5)
@@ -131,9 +131,9 @@ def start_game(self, game_id: str, player_count: int) -> Game:
 
 ### JavaScript (Frontend)
 
-#### Async/Await statt Promises
+#### Async/Await Instead of Promises
 ```javascript
-// ✅ GUT
+// ✅ GOOD
 async function loadEditions() {
     try {
         const response = await fetch('/api/editions');
@@ -142,11 +142,11 @@ async function loadEditions() {
         return data;
     } catch (error) {
         console.error('Error loading editions:', error);
-        showError('Editionen konnten nicht geladen werden');
+        showError('Editions could not be loaded');
     }
 }
 
-// ❌ SCHLECHT
+// ❌ BAD
 function loadEditions() {
     fetch('/api/editions')
         .then(r => r.json())
@@ -155,9 +155,9 @@ function loadEditions() {
 }
 ```
 
-#### Error Handling immer einbauen
+#### Always Include Error Handling
 ```javascript
-// ✅ GUT
+// ✅ GOOD
 async function createGame(edition, name) {
     try {
         const response = await fetch('/api/game/create', {
@@ -168,30 +168,30 @@ async function createGame(edition, name) {
         
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.detail || 'Unbekannter Fehler');
+            throw new Error(error.detail || 'Unknown error');
         }
         
         return await response.json();
     } catch (error) {
         console.error('Create game failed:', error);
-        alert(`Fehler: ${error.message}`);
-        throw error; // Re-throw für Aufrufer
+        alert(`Error: ${error.message}`);
+        throw error; // Re-throw for caller
     }
 }
 
-// ❌ SCHLECHT - Kein Error Handling
+// ❌ BAD - No error handling
 async function createGame(edition, name) {
     const response = await fetch('/api/game/create', {
         method: 'POST',
         body: JSON.stringify({edition, storyteller_name: name})
     });
-    return await response.json(); // Was wenn 404?
+    return await response.json(); // What if 404?
 }
 ```
 
-#### Konstanten für Magic Numbers
+#### Constants for Magic Numbers
 ```javascript
-// ✅ GUT
+// ✅ GOOD
 const POLLING_INTERVAL_MS = 2000;
 const MAX_RETRIES = 5;
 
@@ -199,138 +199,138 @@ function startPolling() {
     setTimeout(checkStatus, POLLING_INTERVAL_MS);
 }
 
-// ❌ SCHLECHT
+// ❌ BAD
 function startPolling() {
-    setTimeout(checkStatus, 2000); // Was bedeutet 2000?
+    setTimeout(checkStatus, 2000); // What does 2000 mean?
 }
 ```
 
 ---
 
-## 🧪 TESTING-RICHTLINIEN
+## 🧪 TESTING GUIDELINES
 
-### 1. Vor jeder Implementierung Test-Plan schreiben
+### 1. Write Test Plan Before Implementation
 
-**Beispiel:**
+**Example:**
 ```markdown
-## Test-Plan: Spieler kicken
+## Test Plan: Kick Player
 
-### API-Test
-- [ ] POST /api/game/{game_id}/kick mit player_id
-- [ ] Erwartung: 200 OK, Spieler entfernt
-- [ ] Test: GET /api/game/{game_id} → player_count reduziert
+### API Test
+- [ ] POST /api/game/{game_id}/kick with player_id
+- [ ] Expectation: 200 OK, player removed
+- [ ] Test: GET /api/game/{game_id} → player_count reduced
 
 ### Edge Cases
-- [ ] Erzähler kicken → 400 Bad Request
-- [ ] Nicht-existierender Spieler → 404 Not Found
-- [ ] Spiel bereits gestartet → 400 Bad Request
+- [ ] Kick storyteller → 400 Bad Request
+- [ ] Non-existent player → 404 Not Found
+- [ ] Game already started → 400 Bad Request
 
-### Frontend-Test
-- [ ] Button erscheint nur bei Erzähler
-- [ ] Kick-Bestätigung via Confirm-Dialog
-- [ ] Spielerliste aktualisiert sich nach Kick
+### Frontend Test
+- [ ] Button appears only for storyteller
+- [ ] Kick confirmation via confirm dialog
+- [ ] Player list updates after kick
 ```
 
-### 2. Manueller Test nach Änderung
+### 2. Manual Test After Changes
 
-Nach **jeder** Code-Änderung:
+After **every** code change:
 ```bash
-# 1. Server starten
+# 1. Start server
 uvicorn main:app --reload
 
-# 2. Browser öffnen
-# 3. Feature testen
-# 4. Browser-Konsole auf Fehler prüfen
-# 5. Network-Tab für API-Calls prüfen
+# 2. Open browser
+# 3. Test feature
+# 4. Check browser console for errors
+# 5. Check network tab for API calls
 ```
 
-### 3. Test-Befehle dokumentieren
+### 3. Document Test Commands
 
 ```markdown
-## Test: Spiel erstellen und starten
+## Test: Create and Start Game
 
-1. Server starten: `uvicorn main:app --reload`
+1. Start server: `uvicorn main:app --reload`
 2. Browser: http://localhost:8000
-3. Erzähler-Name eingeben: "TestErzähler"
-4. Edition wählen: "Trouble Brewing"
-5. "Spiel erstellen" klicken
-6. Erwartung: Redirect zu storyteller.html mit game_id in URL
-7. Join-URL kopieren
-8. Neues Inkognito-Fenster öffnen
-9. Join-URL einfügen
-10. Spieler-Name: "TestSpieler"
-11. "Beitreten" klicken
-12. Zurück zu Erzähler-Tab
-13. Spielerzahl: 5 eingeben
-14. "Spiel starten" klicken
-15. Erwartung: Spielerliste mit Rollen erscheint
-16. Zu Spieler-Tab wechseln
-17. Erwartung: Rolle wird angezeigt
+3. Enter storyteller name: "TestStoryteller"
+4. Select edition: "Trouble Brewing"
+5. Click "Create Game"
+6. Expectation: Redirect to storyteller.html with game_id in URL
+7. Copy join URL
+8. Open new incognito window
+9. Paste join URL
+10. Player name: "TestPlayer"
+11. Click "Join"
+12. Switch back to storyteller tab
+13. Player count: Enter 5
+14. Click "Start Game"
+15. Expectation: Player list with roles appears
+16. Switch to player tab
+17. Expectation: Role is displayed
 ```
 
 ---
 
-## 🔍 CODE-REVIEW-CHECKLISTE
+## 🔍 CODE REVIEW CHECKLIST
 
-Vor jedem Commit prüfen:
+Check before each commit:
 
 ### Backend
-- [ ] Type Hints bei allen Funktionen
-- [ ] Docstrings bei öffentlichen Funktionen
-- [ ] HTTPException mit aussagekräftiger `detail`
-- [ ] Pydantic Models statt rohe Dicts
-- [ ] Error Handling für alle Edge Cases
-- [ ] Keine Magic Numbers (nutze Konstanten)
+- [ ] Type hints on all functions
+- [ ] Docstrings on public functions
+- [ ] HTTPException with descriptive `detail`
+- [ ] Pydantic models instead of raw dicts
+- [ ] Error handling for all edge cases
+- [ ] No magic numbers (use constants)
 
 ### Frontend
-- [ ] Async/Await statt .then()
-- [ ] Try-Catch um alle fetch() Calls
-- [ ] `response.ok` prüfen vor `.json()`
-- [ ] User-freundliche Fehlermeldungen
-- [ ] Konsole-Logs für Debugging
-- [ ] Konstanten für Timeouts/Intervalle
+- [ ] Async/await instead of .then()
+- [ ] Try-catch around all fetch() calls
+- [ ] Check `response.ok` before `.json()`
+- [ ] User-friendly error messages
+- [ ] Console logs for debugging
+- [ ] Constants for timeouts/intervals
 
-### Allgemein
-- [ ] Code ist selbsterklärend (gute Variablennamen)
-- [ ] Keine Duplikate (DRY-Prinzip)
-- [ ] Funktionen machen nur eine Sache
-- [ ] Test-Plan dokumentiert
-- [ ] Manueller Test durchgeführt
+### General
+- [ ] Code is self-explanatory (good variable names)
+- [ ] No duplicates (DRY principle)
+- [ ] Functions do only one thing
+- [ ] Test plan documented
+- [ ] Manual test performed
 
 ---
 
-## 🚨 HÄUFIGE FEHLER VERMEIDEN
+## 🚨 AVOID COMMON MISTAKES
 
-### 1. Fehlende URL-Parameter-Validierung
+### 1. Missing URL Parameter Validation
 ```javascript
-// ❌ SCHLECHT
+// ❌ BAD
 const gameId = params.get('game');
-fetch(`/api/game/${gameId}/start`); // Was wenn gameId null?
+fetch(`/api/game/${gameId}/start`); // What if gameId is null?
 
-// ✅ GUT
+// ✅ GOOD
 const gameId = params.get('game');
 if (!gameId) {
-    alert('Fehler: Keine Spiel-ID in URL gefunden');
+    alert('Error: No game ID found in URL');
     window.location.href = '/';
     return;
 }
 ```
 
-### 2. Polling ohne Stop-Bedingung
+### 2. Polling Without Stop Condition
 ```javascript
-// ❌ SCHLECHT
+// ❌ BAD
 async function poll() {
     const data = await fetch('/api/status');
-    setTimeout(poll, 2000); // Läuft ewig!
+    setTimeout(poll, 2000); // Runs forever!
 }
 
-// ✅ GUT
+// ✅ GOOD
 let pollCount = 0;
-const MAX_POLLS = 60; // 2 Minuten
+const MAX_POLLS = 60; // 2 minutes
 
 async function poll() {
     if (pollCount++ > MAX_POLLS) {
-        showError('Timeout: Spiel wurde nicht gestartet');
+        showError('Timeout: Game was not started');
         return;
     }
     
@@ -343,45 +343,45 @@ async function poll() {
 }
 ```
 
-### 3. Fehlende In-Memory-Daten-Validierung
+### 3. Missing In-Memory Data Validation
 ```python
-# ❌ SCHLECHT
+# ❌ BAD
 def get_game(self, game_id: str) -> Game:
-    return self.games[game_id]  # KeyError wenn nicht existiert!
+    return self.games[game_id]  # KeyError if doesn't exist!
 
-# ✅ GUT
+# ✅ GOOD
 def get_game(self, game_id: str) -> Optional[Game]:
     return self.games.get(game_id)
     
-# Oder mit Exception
+# Or with exception
 def get_game(self, game_id: str) -> Game:
     if game_id not in self.games:
-        raise ValueError(f"Spiel {game_id} existiert nicht")
+        raise ValueError(f"Game {game_id} doesn't exist")
     return self.games[game_id]
 ```
 
 ---
 
-## 📁 DATEI-ORGANISATION
+## 📁 FILE ORGANIZATION
 
-### Wann neue Datei erstellen?
-- **models.py:** Alle Pydantic Models
-- **game_service.py:** Business Logic (KEINE API-Logik!)
-- **main.py:** NUR API-Endpoints
-- **utils.py:** Hilfsfunktionen (z.B. UUID-Generator)
-- **config.py:** Konfiguration (z.B. Ports, Paths)
+### When to Create New File?
+- **models.py:** All Pydantic models
+- **game_service.py:** Business logic (NO API logic!)
+- **main.py:** ONLY API endpoints
+- **utils.py:** Helper functions (e.g. UUID generator)
+- **config.py:** Configuration (e.g. ports, paths)
 
-### Was gehört NICHT in main.py?
+### What Doesn't Belong in main.py?
 ```python
-# ❌ SCHLECHT - Business Logic in main.py
+# ❌ BAD - Business logic in main.py
 @app.post("/api/game/create")
 async def create_game(request: CreateGameRequest):
     game_id = str(uuid.uuid4())[:8]
     game = Game(id=game_id, edition=request.edition)
-    games[game_id] = game  # Direkter Zugriff auf globales Dict!
+    games[game_id] = game  # Direct access to global dict!
     return {"game_id": game_id}
 
-# ✅ GUT - Delegation an Service
+# ✅ GOOD - Delegate to service
 @app.post("/api/game/create")
 async def create_game(request: CreateGameRequest):
     try:
@@ -393,447 +393,425 @@ async def create_game(request: CreateGameRequest):
 
 ---
 
-## 🔄 CHANGE-WORKFLOW
+## 🔄 CHANGE WORKFLOW
 
-### 1. Verstehe die Anforderung
+### 1. Understand the Requirement
 ```
-User: "Spieler sollen gekickt werden können"
+User: "Players should be able to be kicked"
 
-Fragen klären:
-- Wer darf kicken? → Nur Erzähler
-- Wann kicken? → Nur vor Spielstart
-- Was passiert mit Rolle? → N/A (keine Rolle zugeteilt)
-- UI-Feedback? → Bestätigung + Liste-Update
+Clarify questions:
+- Who can kick? → Only storyteller
+- When to kick? → Only before game start
+- What happens to role? → N/A (no role assigned yet)
+- UI feedback? → Confirmation + list update
 ```
 
-### 2. Erstelle Task-Liste
+### 2. Create Task List
 ```markdown
-- [ ] API-Endpoint: POST /api/game/{game_id}/kick
-- [ ] Service-Methode: kick_player(game_id, player_id, requester_id)
-- [ ] Validierung: Nur Erzähler, nur vor Start
-- [ ] Frontend: Kick-Button bei jedem Spieler
-- [ ] Frontend: Bestätigungs-Dialog
-- [ ] Frontend: Liste aktualisieren nach Kick
-- [ ] Test: Kompletter Flow durchspielen
+- [ ] API endpoint: POST /api/game/{game_id}/kick
+- [ ] Service method: kick_player(game_id, player_id, requester_id)
+- [ ] Validation: Only storyteller, only before start
+- [ ] Frontend: Kick button for each player
+- [ ] Frontend: Confirmation dialog
+- [ ] Frontend: Update list after kick
+- [ ] Test: Complete flow end-to-end
 ```
 
-### 3. Implementiere Step-by-Step
-Implementiere **einen** Punkt, teste, dann nächster.
+### 3. Implement Step-by-Step
+Implement **one** item, test, then next.
 
-### 4. Dokumentiere Änderungen
+### 4. Document Changes
 ```markdown
-## Changelog-Eintrag
+## Changelog Entry
 
 ### v1.1 - 2025-01-19
-- ✅ Feature: Spieler können vor Spielstart gekickt werden
+- ✅ Feature: Players can be kicked before game start
   - API: POST /api/game/{game_id}/kick
-  - Nur Erzähler-Berechtigung
-  - Bestätigungs-Dialog im Frontend
+  - Only storyteller permission
+  - Confirmation dialog in frontend
 ```
 
 ---
 
-## 🔧 VERFÜGBARE TOOLS
+## 🔧 AVAILABLE TOOLS
 
-### Built-in Tools (PyCharm IDE)
+### Built-in Tools (IDE)
 
-Als Copilot in PyCharm habe ich Zugriff auf folgende Tools:
+As Copilot I have access to the following tools:
 
-#### 📁 Dateiverwaltung
-- **`read_file`** - Dateiinhalte lesen (mit Zeilenbereich)
-- **`create_file`** - Neue Dateien erstellen
-- **`insert_edit_into_file`** - Code in existierende Dateien einfügen/ändern
-- **`replace_string_in_file`** - Präzise String-Ersetzungen
-- **`open_file`** - Datei im Editor öffnen
-- **`list_dir`** - Verzeichnisinhalte auflisten
-- **`file_search`** - Dateien nach Glob-Pattern suchen (z.B. `**/*.py`)
-- **`grep_search`** - Text-Suche im gesamten Workspace
+#### 📁 File Management
+- **`read_file`** - Read file contents (with line range)
+- **`create_file`** - Create new files
+- **`insert_edit_into_file`** - Insert/modify code in existing files
+- **`replace_string_in_file`** - Precise string replacements
+- **`open_file`** - Open file in editor
+- **`list_dir`** - List directory contents
+- **`file_search`** - Search files by glob pattern (e.g. `**/*.py`)
+- **`grep_search`** - Text search in entire workspace
 
-#### 🔍 Code-Analyse
-- **`get_errors`** - Compile/Lint-Fehler einer Datei abrufen
-  - **WICHTIG:** Nach jeder Datei-Änderung verwenden!
-  - Zeigt TypeErrors, SyntaxErrors, Lint-Warnungen
+#### 🔍 Code Analysis
+- **`get_errors`** - Get compile/lint errors from a file
+  - **IMPORTANT:** Use after every file change!
+  - Shows TypeErrors, SyntaxErrors, lint warnings
 
 #### 💻 Terminal
-- **`run_in_terminal`** - Shell-Befehle ausführen
-  - PowerShell unter Windows
-  - Mit `;` mehrere Befehle verketten
-  - `isBackground=true` für Server/Long-Running Tasks
-- **`get_terminal_output`** - Output von Background-Prozessen abrufen
+- **`run_in_terminal`** - Execute shell commands
+  - PowerShell on Windows
+  - Chain commands with `;`
+  - `isBackground=true` for server/long-running tasks
+- **`get_terminal_output`** - Get output from background processes
 
-#### 🛡️ Sicherheit
-- **`validate_cves`** - Dependencies auf Sicherheitslücken prüfen
+#### 🛡️ Security
+- **`validate_cves`** - Check dependencies for security vulnerabilities
   - Ecosystem: pip, npm, maven, etc.
 
 #### 🤖 Delegation
-- **`run_subagent`** - Spezialisierte Agents für komplexe Tasks
-  - **Plan Agent:** Recherchiert und erstellt Multi-Step-Pläne
+- **`run_subagent`** - Specialized agents for complex tasks
+  - **Plan Agent:** Researches and creates multi-step plans
 
 ---
 
 ### 🌐 MCP Server (Model Context Protocol)
 
-Zusätzliche Fähigkeiten durch MCP-Server in `mcp.json`:
+Additional capabilities through MCP servers in `mcp.json`:
 
 #### 1. Context7
 ```json
 "context7": {
-    "type": "stdio",
     "command": "npx",
-    "args": ["-y", "@upstatement/context7-mcp-server"]
+    "args": [
+        "-y",
+        "@upstash/context7-mcp",
+        "--api-key",
+        "ctx7sk-YOUR-API-KEY"
+    ]
 }
 ```
-**Zweck:** Persistenter Konversationskontext zwischen Sessions  
+**Purpose:** Persistent conversation context between sessions  
+**Type:** NPM-based MCP server via npx  
 **Use Cases:**
-- Projekt-Notizen speichern
-- Wichtige Entscheidungen dokumentieren
-- Zwischen Chat-Sessions Kontext behalten
+- Store project notes
+- Document important decisions
+- Maintain context between chat sessions
 
-**Beispiel:**
+**Example:**
 ```
-User: "Speichere: Wir verwenden In-Memory Storage für MVP, später SQLite"
-Copilot: [Nutzt Context7 zum Speichern]
+User: "Remember: We use in-memory storage for MVP, later SQLite"
+Copilot: [Uses Context7 to store]
 
---- Neue Session ---
-User: "Warum nutzen wir kein echtes DB?"
-Copilot: [Liest aus Context7] "Wir haben entschieden In-Memory für MVP zu nutzen..."
+--- New Session ---
+User: "Why don't we use a real DB?"
+Copilot: [Reads from Context7] "We decided to use in-memory for MVP..."
 ```
 
-#### 2. Brave Search
+#### 2. DuckDuckGo Search
 ```json
-"brave-search": {
+"duckduckgo": {
     "type": "stdio",
-    "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-brave-search"],
-    "env": {
-        "BRAVE_API_KEY": "YOUR_API_KEY"
-    }
+    "command": "uvx",
+    "args": ["duckduckgo-mcp-server"]
 }
 ```
-**Zweck:** Internet-Suche für aktuelle Informationen  
+**Purpose:** Internet search for current information  
 **Use Cases:**
-- Aktuelle Library-Versionen suchen
-- Best Practices recherchieren
-- Error-Messages googeln
-- Dokumentation finden
+- Search for current library versions
+- Research best practices
+- Google error messages
+- Find documentation
 
-**Beispiel:**
+**Example:**
 ```
-User: "Wie macht man WebSockets in FastAPI?"
-Copilot: [Nutzt Brave Search]
-"Laut aktueller FastAPI-Docs (v0.109.0) wird WebSocket so implementiert..."
-```
-
-#### 3. Puppeteer
-```json
-"puppeteer": {
-    "type": "stdio",
-    "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
-}
-```
-**Zweck:** Browser-Automatisierung & Web-Scraping  
-**Use Cases:**
-- Webseiten-Inhalte extrahieren
-- Screenshots erstellen
-- JavaScript auf Webseiten ausführen
-- API-Dokumentation scrapen
-
-**Beispiel:**
-```
-User: "Lade die FastAPI-Docs zu WebSockets"
-Copilot: [Nutzt Puppeteer]
-"Ich habe die Seite geladen und hier ist der relevante Abschnitt..."
+User: "How to do WebSockets in FastAPI?"
+Copilot: [Uses DuckDuckGo Search]
+"According to current FastAPI docs (v0.109.0) WebSocket is implemented like this..."
 ```
 
 ---
 
-### 🎯 Tool-Usage Best Practices
+### 🎯 Tool Usage Best Practices
 
-#### 1. Nach Code-Änderungen immer Fehler prüfen
+#### 1. Always Check Errors After Code Changes
 ```python
-# Nach insert_edit_into_file oder replace_string_in_file:
-# → IMMER get_errors aufrufen!
+# After insert_edit_into_file or replace_string_in_file:
+# → ALWAYS call get_errors!
 
-# Beispiel-Workflow:
+# Example workflow:
 1. replace_string_in_file("main.py", ...)
 2. get_errors(["main.py"])
-3. Falls Fehler: Korrigieren und erneut prüfen
+3. If errors: Fix and check again
 ```
 
-#### 2. Terminal für Tests nutzen
+#### 2. Use Terminal for Tests
 ```bash
-# Server starten (Background)
+# Start server (Background)
 run_in_terminal("uvicorn main:app --reload", isBackground=True)
 
-# Tests ausführen (Foreground)
+# Run tests (Foreground)
 run_in_terminal("pytest tests/", isBackground=False)
 
-# Dependencies installieren
+# Install dependencies
 run_in_terminal("pip install fastapi uvicorn", isBackground=False)
 ```
 
-#### 3. Brave Search für Unsicherheiten
+#### 3. DuckDuckGo Search for Uncertainties
 ```
-Wenn unsicher über API/Feature:
-1. NICHT raten oder erfinden
-2. Brave Search nutzen
-3. Offizielle Docs finden
-4. Antwort mit Quelle geben
-```
-
-#### 4. Context7 für Projekt-Memory
-```
-Bei wichtigen Entscheidungen:
-- Speichere Architektur-Entscheidungen
-- Speichere bekannte Bugs + Workarounds
-- Speichere Team-Präferenzen
+When unsure about API/feature:
+1. DON'T guess or invent
+2. Use DuckDuckGo Search
+3. Find official docs
+4. Answer with source
 ```
 
-#### 5. grep_search vor Änderungen
+#### 4. Context7 for Project Memory
+```
+For important decisions:
+- Store architecture decisions
+- Store known bugs + workarounds
+- Store team preferences
+```
+
+#### 5. grep_search Before Changes
 ```python
-# Bevor du eine Funktion änderst:
-# 1. Suche wo sie verwendet wird
+# Before changing a function:
+# 1. Search where it's used
 grep_search("def create_game", includePattern="**/*.py")
 
-# 2. Verstehe Impact
-# 3. Ändere alle Verwendungsstellen
+# 2. Understand impact
+# 3. Change all usage locations
 ```
 
 ---
 
-### 🚫 Tool-Limitierungen
+### 🚫 Tool Limitations
 
-#### Was Tools NICHT können:
-- ❌ **read_file:** Kann nicht ganze große Dateien auf einmal lesen
-  - Lösung: Zeilenbereich angeben oder grep_search nutzen
-- ❌ **run_in_terminal:** Kein interaktiver Input möglich
-  - Lösung: Flags nutzen (z.B. `pip install -y`)
-- ❌ **Brave Search:** Begrenzte API-Calls (2000/Monat kostenlos)
-  - Lösung: Sparsam einsetzen, erst lokale Docs prüfen
-- ❌ **Puppeteer:** JavaScript-Heavy-Apps können langsam sein
-  - Lösung: Direkte API-Calls bevorzugen wenn verfügbar
+#### What Tools CANNOT Do:
+- ❌ **read_file:** Cannot read entire large files at once
+  - Solution: Specify line range or use grep_search
+- ❌ **run_in_terminal:** No interactive input possible
+  - Solution: Use flags (e.g. `pip install -y`)
+- ❌ **DuckDuckGo Search:** Rate limits with too many queries
+  - Solution: Use sparingly, check local docs first
 
 ---
 
-### 📊 Tool-Auswahl-Entscheidungsbaum
+### 📊 Tool Selection Decision Tree
 
 ```
-Frage: "Wie mache ich X in FastAPI?"
-├─ Habe ich sichere Antwort? → Direkt antworten
-├─ Steht in Projekt-Docs? → read_file(".github/PROJEKT_DOKUMENTATION.md")
-├─ Ist im Code-Beispiel? → grep_search("X")
-└─ Keine Ahnung? → Brave Search "FastAPI X documentation"
+Question: "How do I do X in FastAPI?"
+├─ Do I have sure answer? → Answer directly
+├─ Is it in project docs? → read_file(".github/PROJECT_DOCUMENTATION.md")
+├─ Is it in code examples? → grep_search("X")
+└─ No idea? → DuckDuckGo Search "FastAPI X documentation"
 
-Aufgabe: "Füge Feature Y hinzu"
-├─ Komplex? → run_subagent("Plan", "Erstelle Step-by-Step Plan für Y")
-├─ Einfach? → Direkt implementieren
-└─ Nach Implementierung:
-    ├─ get_errors(["geänderte_datei.py"])
+Task: "Add feature Y"
+├─ Complex? → run_subagent("Plan", "Create step-by-step plan for Y")
+├─ Simple? → Implement directly
+└─ After implementation:
+    ├─ get_errors(["changed_file.py"])
     ├─ run_in_terminal("pytest tests/")
-    └─ Dokumentation aktualisieren
+    └─ Update documentation
 
-User meldet Fehler: "Z funktioniert nicht"
-├─ Fehler reproduzieren → run_in_terminal("python test_z.py")
-├─ Logs prüfen → read_file("logs/error.log")
-├─ Im Internet suchen → Brave Search "FastAPI error message Z"
-└─ Fix implementieren → replace_string_in_file(...)
+User reports error: "Z doesn't work"
+├─ Reproduce error → run_in_terminal("python test_z.py")
+├─ Check logs → read_file("logs/error.log")
+├─ Search internet → DuckDuckGo Search "FastAPI error message Z"
+└─ Implement fix → replace_string_in_file(...)
 ```
 
 ---
 
-### 💡 Tool-Kombination Beispiele
+### 💡 Tool Combination Examples
 
-#### Beispiel 1: Neue Funktion hinzufügen
+#### Example 1: Add New Function
 ```
 1. grep_search("create_game") 
-   → Verstehe existierende Patterns
+   → Understand existing patterns
 
 2. insert_edit_into_file("game_service.py")
-   → Füge neue Funktion hinzu
+   → Add new function
 
 3. get_errors(["game_service.py"])
-   → Prüfe auf Syntax-/Type-Fehler
+   → Check for syntax/type errors
 
 4. grep_search("test_create_game")
-   → Finde Test-Patterns
+   → Find test patterns
 
 5. create_file("tests/test_new_feature.py")
-   → Erstelle Tests
+   → Create tests
 
 6. run_in_terminal("pytest tests/test_new_feature.py")
-   → Führe Tests aus
+   → Run tests
 
-7. replace_string_in_file(".github/PROJEKT_DOKUMENTATION.md")
-   → Dokumentiere Feature
+7. replace_string_in_file(".github/PROJECT_DOCUMENTATION.md")
+   → Document feature
 ```
 
-#### Beispiel 2: Bug fixen mit unbekannter Error-Message
+#### Example 2: Fix Bug with Unknown Error Message
 ```
-1. User: "Fehler: 'NoneType' has no attribute 'id'"
+1. User: "Error: 'NoneType' has no attribute 'id'"
 
 2. grep_search(".id", includePattern="**/*.py")
-   → Finde alle Stellen mit .id
+   → Find all locations with .id
 
-3. read_file("main.py", zeilen_mit_fehler)
-   → Verstehe Kontext
+3. read_file("main.py", lines_with_error)
+   → Understand context
 
-4. Brave Search "Python NoneType has no attribute best practices"
-   → Lerne über Guard-Clauses
+4. DuckDuckGo Search "Python NoneType has no attribute best practices"
+   → Learn about guard clauses
 
 5. replace_string_in_file("main.py")
-   → Füge None-Check hinzu
+   → Add None check
 
 6. get_errors(["main.py"])
-   → Validiere Fix
+   → Validate fix
 
 7. run_in_terminal("uvicorn main:app --reload", isBackground=True)
-   → Starte Server
+   → Start server
 
-8. User testet manuell → Erfolg!
+8. User tests manually → Success!
 ```
 
-#### Beispiel 3: Research vor Implementierung
+#### Example 3: Research Before Implementation
 ```
-User: "Sollen wir WebSockets statt Polling nutzen?"
+User: "Should we use WebSockets instead of polling?"
 
-1. Context7: Lade bisherige Diskussionen
-   → Gab es schon Überlegungen?
+1. Context7: Load previous discussions
+   → Were there considerations before?
 
-2. Brave Search "FastAPI WebSocket vs Polling performance"
-   → Recherchiere Pros/Cons
+2. DuckDuckGo Search "FastAPI WebSocket vs Polling performance"
+   → Research pros/cons
 
-3. Brave Search "WebSocket browser support 2025"
-   → Prüfe Kompatibilität
+3. DuckDuckGo Search "WebSocket browser support 2025"
+   → Check compatibility
 
-4. run_subagent("Plan", "Erstelle Migrations-Plan von Polling zu WebSocket")
-   → Plane Umsetzung
+4. run_subagent("Plan", "Create migration plan from polling to WebSocket")
+   → Plan implementation
 
-5. Präsentiere Ergebnis mit Quellen
-   → User entscheidet informiert
+5. Present result with sources
+   → User decides informed
 
-6. Context7: Speichere Entscheidung
-   → Für zukünftige Sessions
-```
-
----
-
-## 🎓 LERN-RESSOURCEN
-
-### Wenn du nicht weiter weißt:
-
-1. **Projekt-Dokumentation:** `.github/PROJEKT_DOKUMENTATION.md` (IMMER ZUERST!)
-2. **Copilot Instructions:** `.github/copilot-instructions.md` (Diese Datei)
-3. **FastAPI Docs:** https://fastapi.tiangolo.com/ (via Brave Search)
-4. **Pydantic Docs:** https://docs.pydantic.dev/ (via Brave Search)
-5. **MDN Web Docs:** https://developer.mozilla.org/ (JavaScript, via Brave Search)
-
-### Reihenfolge bei Unsicherheit:
-```
-1. Projekt-Docs lesen (read_file)
-   ↓ Keine Antwort?
-2. Code durchsuchen (grep_search)
-   ↓ Keine Antwort?
-3. Internet-Recherche (Brave Search)
-   ↓ Keine Antwort?
-4. EHRLICH sagen: "Ich weiß es nicht, lass uns gemeinsam testen"
-```
-
-### Beispiel-Antwort bei Unsicherheit:
-```
-"Ich bin mir nicht sicher, ob FastAPI einen eingebauten WebSocket-Support hat. 
-
-Lass mich das prüfen:
-1. [Brave Search] Schaue in FastAPI-Docs nach WebSocket
-2. [read_file] Prüfe ob es bereits im Projekt verwendet wird
-3. [run_in_terminal] Teste mit kleinem Beispiel
-
-Einen Moment..."
-
-[Nutzt Brave Search]
-
-"✅ Ja, FastAPI hat WebSocket-Support ab Version 0.45.0. 
-Quelle: https://fastapi.tiangolo.com/advanced/websockets/
-
-Soll ich ein Beispiel implementieren?"
+6. Context7: Store decision
+   → For future sessions
 ```
 
 ---
 
-## ✅ ERFOLGS-METRIKEN
+## 🎓 LEARNING RESOURCES
 
-Ein Feature ist fertig, wenn:
-- [ ] Code geschrieben und funktioniert
-- [ ] Manuell getestet (happy path + edge cases)
-- [ ] Error Handling implementiert
-- [ ] Dokumentation aktualisiert (PROJEKT_DOKUMENTATION.md)
-- [ ] Changelog-Eintrag geschrieben
-- [ ] Keine Fehler in Browser-Konsole
-- [ ] Keine Python-Exceptions im Terminal
+### When you don't know what to do:
+
+1. **Project Documentation:** `.github/PROJECT_DOCUMENTATION.md` (ALWAYS FIRST!)
+2. **Copilot Instructions:** `.github/copilot-instructions.md` (This file)
+3. **FastAPI Docs:** https://fastapi.tiangolo.com/ (via DuckDuckGo Search)
+4. **Pydantic Docs:** https://docs.pydantic.dev/ (via DuckDuckGo Search)
+5. **MDN Web Docs:** https://developer.mozilla.org/ (JavaScript, via DuckDuckGo Search)
+
+### Order When Uncertain:
+```
+1. Read project docs (read_file)
+   ↓ No answer?
+2. Search code (grep_search)
+   ↓ No answer?
+3. Internet research (DuckDuckGo Search)
+   ↓ No answer?
+4. Be HONEST: "I don't know, let's test together"
+```
+
+### Example Answer When Uncertain:
+```
+"I'm not sure if FastAPI has built-in WebSocket support. 
+
+Let me check:
+1. [DuckDuckGo Search] Look in FastAPI docs for WebSocket
+2. [read_file] Check if it's already used in the project
+3. [run_in_terminal] Test with small example
+
+One moment..."
+
+[Uses DuckDuckGo Search]
+
+"✅ Yes, FastAPI has WebSocket support since version 0.45.0. 
+Source: https://fastapi.tiangolo.com/advanced/websockets/
+
+Should I implement an example?"
+```
 
 ---
 
-## 🚀 DEPLOYMENT-CHECKLISTE
+## ✅ SUCCESS METRICS
 
-Vor Production-Deployment:
-- [ ] Alle TODOs aus Dokumentation abgearbeitet
-- [ ] Error Messages sind user-freundlich (keine Stacktraces)
-- [ ] Logging implementiert (für Debugging)
-- [ ] Secrets in Environment Variables (.env)
-- [ ] CORS konfiguriert (falls Frontend separate Domain)
-- [ ] Rate Limiting erwägen (gegen Spam)
+A feature is complete when:
+- [ ] Code is written and works
+- [ ] Manually tested (happy path + edge cases)
+- [ ] Error handling implemented
+- [ ] Documentation updated (PROJECT_DOCUMENTATION.md)
+- [ ] Changelog entry written
+- [ ] No errors in browser console
+- [ ] No Python exceptions in terminal
 
 ---
 
-## 💡 PHILOSOPHIE
+## 🚀 DEPLOYMENT CHECKLIST
+
+Before production deployment:
+- [ ] All TODOs from documentation completed
+- [ ] Error messages are user-friendly (no stack traces)
+- [ ] Logging implemented (for debugging)
+- [ ] Secrets in environment variables (.env)
+- [ ] CORS configured (if frontend on separate domain)
+- [ ] Consider rate limiting (against spam)
+
+---
+
+## 💡 PHILOSOPHY
 
 ### DRY - Don't Repeat Yourself
-Wenn Code 2x vorkommt → Funktion extrahieren
+If code appears 2x → Extract into function
 
 ### KISS - Keep It Simple, Stupid
-Einfache Lösung > komplexe Lösung
+Simple solution > complex solution
 
 ### YAGNI - You Ain't Gonna Need It
-Keine Features implementieren "für später"
+Don't implement features "for later"
 
-### Testbarkeit über Perfektion
-Lieber simpler Code der getestet werden kann, als komplexer "perfekter" Code
-
----
-
-**Zusammenfassung:**
-1. ✅ Ehrlich sein wenn du etwas nicht weißt
-2. ✅ Step-by-Step vorgehen
-3. ✅ Alles muss testbar sein
-4. ✅ Type Hints, Error Handling, Docstrings
-5. ✅ Test-Plan vor Implementierung
-6. ✅ Dokumentation aktualisieren
-7. ✅ Tools richtig einsetzen (get_errors, Brave Search, Context7)
-8. ✅ Nach Änderungen immer validieren
-
-**Diese Prinzipien gelten für JEDE Code-Änderung im Projekt.**
+### Testability Over Perfection
+Better simple code that can be tested than complex "perfect" code
 
 ---
 
-## 🛠️ QUICK REFERENCE: Tool-Cheat-Sheet
+**Summary:**
+1. ✅ Be honest when you don't know something
+2. ✅ Proceed step-by-step
+3. ✅ Everything must be testable
+4. ✅ Type hints, error handling, docstrings
+5. ✅ Test plan before implementation
+6. ✅ Update documentation
+7. ✅ Use tools correctly (get_errors, DuckDuckGo Search, Context7)
+8. ✅ Always validate after changes
 
-| Situation | Tool | Befehl |
-|-----------|------|--------|
-| Datei lesen | `read_file` | read_file("path/to/file", start, end) |
-| Code ändern | `replace_string_in_file` | Präzise String-Ersetzung |
-| Neue Datei | `create_file` | create_file("path", content) |
-| Fehler prüfen | `get_errors` | get_errors(["file.py"]) ⚠️ NACH JEDER ÄNDERUNG |
-| Text suchen | `grep_search` | grep_search("pattern") |
-| Dateien finden | `file_search` | file_search("**/*.py") |
-| Server starten | `run_in_terminal` | isBackground=True |
-| Tests laufen | `run_in_terminal` | isBackground=False |
-| Unsicher? | `Brave Search` | Internet-Recherche |
-| Komplex? | `run_subagent` | Plan-Agent für Multi-Step |
-| Merken! | `Context7` | Persistente Notizen |
+**These principles apply to EVERY code change in the project.**
 
 ---
 
-**Erstellt:** 2025-01-19  
-**Letzte Aktualisierung:** 2025-01-19  
-**Version:** 1.1.0 (Tools & MCP Server hinzugefügt)
+## 🛠️ QUICK REFERENCE: Tool Cheat Sheet
+
+| Situation | Tool | Command |
+|-----------|------|---------|
+| Read file | `read_file` | read_file("path/to/file", start, end) |
+| Change code | `replace_string_in_file` | Precise string replacement |
+| New file | `create_file` | create_file("path", content) |
+| Check errors | `get_errors` | get_errors(["file.py"]) ⚠️ AFTER EVERY CHANGE |
+| Search text | `grep_search` | grep_search("pattern") |
+| Find files | `file_search` | file_search("**/*.py") |
+| Start server | `run_in_terminal` | isBackground=True |
+| Run tests | `run_in_terminal` | isBackground=False |
+| Uncertain? | `DuckDuckGo Search` | Internet research |
+| Complex? | `run_subagent` | Plan agent for multi-step |
+| Remember! | `Context7` | Persistent notes |
+
+---
+
+**Created:** 2025-01-19  
+**Last Updated:** 2025-12-19  
+**Version:** 1.2.1 (Context7 updated to npx-based configuration)
 

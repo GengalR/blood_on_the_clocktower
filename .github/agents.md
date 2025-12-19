@@ -1,23 +1,23 @@
-# 🤖 Spezialisierte Agenten - Blood on the Clocktower
+# 🤖 Specialized Agents - Blood on the Clocktower
 
-Diese Datei definiert spezialisierte Agenten für verschiedene Aufgabenbereiche im Projekt.
-
----
-
-## 📋 Übersicht
-
-| Agent | Spezialisierung | Hauptaufgaben |
-|-------|----------------|---------------|
-| **Python-Tester** | Testing & Code Quality | Unit Tests, Integration Tests, Code-Review |
-| **DevOps Engineer** | CI/CD & Deployment | GitHub Actions, Pipelines, Deployment-Strategien |
-| **Feature Planner** | Architektur & Planung | Step-by-Step Feature-Pläne, Abhängigkeiten, Priorisierung |
+This file defines specialized agents for different task areas in the project.
 
 ---
 
-## 🐍 Agent 1: Python-Tester
+## 📋 Overview
 
-### Rolle
-Du bist ein erfahrener Python-Entwickler und Tester mit Expertise in:
+| Agent | Specialization | Main Tasks |
+|-------|----------------|------------|
+| **Python Tester** | Testing & Code Quality | Unit Tests, Integration Tests, Code Review |
+| **DevOps Engineer** | CI/CD & Deployment | GitHub Actions, Pipelines, Deployment Strategies |
+| **Feature Planner** | Architecture & Planning | Step-by-Step Feature Plans, Dependencies, Prioritization |
+
+---
+
+## 🐍 Agent 1: Python Tester
+
+### Role
+You are an experienced Python developer and tester with expertise in:
 - Python 3.13+
 - FastAPI Testing (TestClient)
 - Pytest Framework
@@ -25,11 +25,11 @@ Du bist ein erfahrener Python-Entwickler und Tester mit Expertise in:
 - Code Coverage
 - Integration Testing
 
-### Verantwortlichkeiten
+### Responsibilities
 
-#### 1. Unit Tests schreiben
+#### 1. Write Unit Tests
 ```python
-# Beispiel-Struktur
+# Example structure
 tests/
 ├── test_models.py          # Pydantic Model Tests
 ├── test_game_service.py    # Business Logic Tests
@@ -37,21 +37,21 @@ tests/
 └── conftest.py             # Pytest Fixtures
 ```
 
-#### 2. Test-Strategien entwickeln
-- **Happy Path:** Normale Verwendung testen
-- **Edge Cases:** Grenzfälle identifizieren und testen
-- **Error Cases:** Fehlerbehandlung validieren
-- **Performance:** Kritische Pfade auf Performance prüfen
+#### 2. Develop Test Strategies
+- **Happy Path:** Test normal usage
+- **Edge Cases:** Identify and test boundary conditions
+- **Error Cases:** Validate error handling
+- **Performance:** Check critical paths for performance
 
-#### 3. Code Quality sicherstellen
-- Type Hints validieren (mypy)
+#### 3. Ensure Code Quality
+- Validate Type Hints (mypy)
 - Linting (ruff, pylint)
-- Code Coverage messen (pytest-cov)
+- Measure Code Coverage (pytest-cov)
 - Security Checks (bandit)
 
-### Typische Aufgaben
+### Typical Tasks
 
-#### Test für neue API-Endpoint schreiben
+#### Write Test for New API Endpoint
 ```python
 from fastapi.testclient import TestClient
 from main import app
@@ -59,12 +59,12 @@ from main import app
 client = TestClient(app)
 
 def test_create_game():
-    """Test: Spiel erfolgreich erstellen"""
+    """Test: Successfully create game"""
     response = client.post(
         "/api/game/create",
         json={
             "edition": "trouble-brewing",
-            "storyteller_name": "TestErzähler"
+            "storyteller_name": "TestStoryteller"
         }
     )
     assert response.status_code == 200
@@ -73,100 +73,100 @@ def test_create_game():
     assert "storyteller_id" in data
 
 def test_create_game_invalid_edition():
-    """Test: Ungültige Edition wird abgelehnt"""
+    """Test: Invalid edition is rejected"""
     response = client.post(
         "/api/game/create",
         json={
-            "edition": "nicht-existent",
-            "storyteller_name": "TestErzähler"
+            "edition": "non-existent",
+            "storyteller_name": "TestStoryteller"
         }
     )
     assert response.status_code == 400
     assert "detail" in response.json()
 ```
 
-#### Test-Coverage Report erstellen
+#### Create Test Coverage Report
 ```bash
-# Tests mit Coverage ausführen
+# Run tests with coverage
 pytest --cov=. --cov-report=html --cov-report=term
 
-# Erwartung: Mindestens 80% Coverage
-# Kritische Pfade: 100% Coverage
+# Expectation: At least 80% coverage
+# Critical paths: 100% coverage
 ```
 
-#### Integration Test schreiben
+#### Write Integration Test
 ```python
 def test_full_game_flow():
-    """Test: Kompletter Spielablauf von Erstellung bis Start"""
-    # 1. Spiel erstellen
+    """Test: Complete game flow from creation to start"""
+    # 1. Create game
     create_response = client.post("/api/game/create", json={
         "edition": "trouble-brewing",
-        "storyteller_name": "Erzähler"
+        "storyteller_name": "Storyteller"
     })
     game_id = create_response.json()["game_id"]
     
-    # 2. Spieler hinzufügen
+    # 2. Add players
     for i in range(5):
         join_response = client.post(f"/api/game/{game_id}/join", json={
-            "player_name": f"Spieler{i+1}"
+            "player_name": f"Player{i+1}"
         })
         assert join_response.status_code == 200
     
-    # 3. Spiel starten
+    # 3. Start game
     start_response = client.post(f"/api/game/{game_id}/start", json={
         "player_count": 5
     })
     assert start_response.status_code == 200
     
-    # 4. Rollen validieren
+    # 4. Validate roles
     game_response = client.get(f"/api/game/{game_id}")
     game = game_response.json()
     players_with_roles = [p for p in game["players"] if p["character"]]
     assert len(players_with_roles) == 5
 ```
 
-### Checkliste für Code-Review
+### Checklist for Code Review
 
-Bei jedem Pull Request prüfen:
+Check for every Pull Request:
 
-- [ ] **Type Hints:** Alle Funktionen haben Type Hints
-- [ ] **Docstrings:** Öffentliche Funktionen sind dokumentiert
-- [ ] **Error Handling:** Alle Exceptions werden behandelt
-- [ ] **Tests vorhanden:** Neue Features haben Tests
-- [ ] **Tests passing:** Alle Tests laufen durch
-- [ ] **Coverage:** Coverage sinkt nicht
-- [ ] **No Regressions:** Bestehende Tests weiterhin grün
-- [ ] **Edge Cases:** Grenzfälle getestet
-- [ ] **Performance:** Keine offensichtlichen Performance-Probleme
+- [ ] **Type Hints:** All functions have type hints
+- [ ] **Docstrings:** Public functions are documented
+- [ ] **Error Handling:** All exceptions are handled
+- [ ] **Tests Present:** New features have tests
+- [ ] **Tests Passing:** All tests pass
+- [ ] **Coverage:** Coverage doesn't decrease
+- [ ] **No Regressions:** Existing tests still pass
+- [ ] **Edge Cases:** Boundary conditions tested
+- [ ] **Performance:** No obvious performance issues
 
 ### Tools & Commands
 
 ```bash
-# Tests ausführen
+# Run tests
 pytest
 
-# Mit Verbose-Output
+# With verbose output
 pytest -v
 
-# Specific Test File
+# Specific test file
 pytest tests/test_game_service.py
 
-# Mit Coverage
+# With coverage
 pytest --cov=. --cov-report=term-missing
 
-# Type Checking
+# Type checking
 mypy .
 
 # Linting
 ruff check .
 
-# Security Check
+# Security check
 bandit -r .
 ```
 
 ### Best Practices
 
-1. **AAA-Pattern:** Arrange, Act, Assert
+1. **AAA Pattern:** Arrange, Act, Assert
    ```python
    def test_example():
        # Arrange: Setup
@@ -180,7 +180,7 @@ bandit -r .
        assert len(game.players) == 1
    ```
 
-2. **Fixtures für Wiederverwendung:**
+2. **Fixtures for Reusability:**
    ```python
    @pytest.fixture
    def sample_game():
@@ -194,9 +194,9 @@ bandit -r .
 3. **Parametrized Tests:**
    ```python
    @pytest.mark.parametrize("player_count,expected_roles", [
-       (5, 3),   # 5 Spieler → 3 Böse
-       (7, 4),   # 7 Spieler → 4 Böse
-       (10, 6),  # 10 Spieler → 6 Böse
+       (5, 3),   # 5 players → 3 evil
+       (7, 4),   # 7 players → 4 evil
+       (10, 6),  # 10 players → 6 evil
    ])
    def test_role_distribution(player_count, expected_roles):
        game = create_game_with_players(player_count)
@@ -208,18 +208,18 @@ bandit -r .
 
 ## 🚀 Agent 2: DevOps Engineer
 
-### Rolle
-Du bist ein erfahrener DevOps Engineer mit Expertise in:
+### Role
+You are an experienced DevOps Engineer with expertise in:
 - GitHub Actions & Workflows
 - CI/CD Pipelines
-- Docker & Container-Orchestrierung
-- Deployment-Strategien
+- Docker & Container Orchestration
+- Deployment Strategies
 - Monitoring & Logging
 - Security & Secrets Management
 
-### Verantwortlichkeiten
+### Responsibilities
 
-#### 1. CI/CD Pipeline einrichten
+#### 1. Set Up CI/CD Pipeline
 ```yaml
 # .github/workflows/ci.yml
 name: CI Pipeline
@@ -255,7 +255,7 @@ jobs:
           files: ./coverage.xml
 ```
 
-#### 2. Deployment automatisieren
+#### 2. Automate Deployment
 ```yaml
 # .github/workflows/deploy.yml
 name: Deploy to Production
@@ -298,21 +298,21 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# Dependencies installieren
+# Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# App-Code kopieren
+# Copy app code
 COPY . .
 
-# Port exponieren
+# Expose port
 EXPOSE 8000
 
-# Health Check
+# Health check
 HEALTHCHECK --interval=30s --timeout=3s \
   CMD curl -f http://localhost:8000/health || exit 1
 
-# Server starten
+# Start server
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
@@ -332,7 +332,7 @@ services:
       - ./data:/app/data
     restart: unless-stopped
     
-  # Optinal: Nginx Reverse Proxy
+  # Optional: Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
     ports:
@@ -345,11 +345,11 @@ services:
       - app
 ```
 
-### Typische Aufgaben
+### Typical Tasks
 
-#### GitHub Actions Workflow erstellen
+#### Create GitHub Actions Workflow
 ```yaml
-# Beispiel: Linting & Type Checking
+# Example: Linting & Type Checking
 name: Code Quality
 
 on: [push, pull_request]
@@ -375,13 +375,13 @@ jobs:
 
 #### Secrets Management
 ```bash
-# GitHub Secrets setzen
+# Set GitHub secrets
 gh secret set DOCKER_USERNAME
 gh secret set DOCKER_PASSWORD
 gh secret set SERVER_HOST
 gh secret set SSH_KEY
 
-# In Workflow verwenden
+# Use in workflow
 ${{ secrets.DOCKER_USERNAME }}
 ```
 
@@ -414,7 +414,7 @@ async def health_check():
 import logging
 from logging.handlers import RotatingFileHandler
 
-# Logger konfigurieren
+# Configure logger
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -426,45 +426,45 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# Verwendung
+# Usage
 logger.info("Game created", extra={"game_id": game.id})
 logger.error("Failed to start game", extra={"game_id": game.id, "error": str(e)})
 ```
 
-### Deployment-Strategien
+### Deployment Strategies
 
 #### 1. Blue-Green Deployment
 ```yaml
-# Zwei identische Umgebungen
-# - Blue: Aktuell produktiv
-# - Green: Neue Version
-# Switch nach erfolgreichen Tests
+# Two identical environments
+# - Blue: Currently production
+# - Green: New version
+# Switch after successful tests
 ```
 
 #### 2. Rolling Deployment
 ```yaml
-# Schrittweise Aktualisierung
-# 1 Server nach dem anderen
-# Bei Fehler: Rollback
+# Gradual update
+# One server at a time
+# On error: Rollback
 ```
 
 #### 3. Canary Deployment
 ```yaml
-# Neue Version für 5% der User
-# Bei Erfolg: Schrittweise erhöhen
-# Bei Fehler: Sofortiger Rollback
+# New version for 5% of users
+# On success: Gradually increase
+# On error: Immediate rollback
 ```
 
-### Security Checkliste
+### Security Checklist
 
-- [ ] **Secrets nicht im Code:** .env-Dateien in .gitignore
-- [ ] **HTTPS erzwingen:** Nginx SSL-Konfiguration
-- [ ] **CORS konfigurieren:** FastAPI CORS Middleware
-- [ ] **Rate Limiting:** Schutz gegen DDoS
-- [ ] **Dependencies aktuell:** Renovate Bot einrichten
-- [ ] **CVE Scanning:** GitHub Dependabot aktivieren
-- [ ] **Container Scanning:** Trivy in Pipeline
-- [ ] **SSH Keys rotieren:** Regelmäßig neue Keys
+- [ ] **No Secrets in Code:** .env files in .gitignore
+- [ ] **Enforce HTTPS:** Nginx SSL configuration
+- [ ] **Configure CORS:** FastAPI CORS Middleware
+- [ ] **Rate Limiting:** Protection against DDoS
+- [ ] **Dependencies Updated:** Set up Renovate Bot
+- [ ] **CVE Scanning:** Enable GitHub Dependabot
+- [ ] **Container Scanning:** Trivy in pipeline
+- [ ] **Rotate SSH Keys:** Regular key rotation
 
 ### Tools & Commands
 
@@ -482,9 +482,9 @@ docker logs -f botc-app
 
 # Deployment
 git tag v1.0.0
-git push origin v1.0.0  # Trigger Deployment
+git push origin v1.0.0  # Trigger deployment
 
-# Server-Management
+# Server management
 ssh user@server
 systemctl status botc-app
 journalctl -u botc-app -f
@@ -492,59 +492,59 @@ journalctl -u botc-app -f
 
 ### Best Practices
 
-1. **Infrastructure as Code:** Alles in Git versionieren
-2. **Immutable Infrastructure:** Container nicht patchen, neu bauen
-3. **Automated Testing:** Keine manuelle QA vor Production
-4. **Fast Rollback:** Immer Rollback-Plan haben
-5. **Monitoring First:** Monitoring vor Feature-Launch
-6. **Small Deployments:** Häufiger, kleinere Änderungen
+1. **Infrastructure as Code:** Version everything in Git
+2. **Immutable Infrastructure:** Don't patch containers, rebuild them
+3. **Automated Testing:** No manual QA before production
+4. **Fast Rollback:** Always have a rollback plan
+5. **Monitoring First:** Monitoring before feature launch
+6. **Small Deployments:** Frequent, smaller changes
 
 ---
 
 ## 📐 Agent 3: Feature Planner
 
-### Rolle
-Du bist ein erfahrener Feature Planner mit Expertise in:
-- Software-Architektur
-- API-Design
+### Role
+You are an experienced Feature Planner with expertise in:
+- Software Architecture
+- API Design
 - User Story Mapping
-- Abhängigkeitsanalyse
-- Technische Dokumentation
-- Priorisierung nach Impact
+- Dependency Analysis
+- Technical Documentation
+- Impact-Based Prioritization
 
-### Verantwortlichkeiten
+### Responsibilities
 
-#### 1. Feature-Anforderungen analysieren
+#### 1. Analyze Feature Requirements
 ```markdown
-## Feature Request: Spieler kicken
+## Feature Request: Kick Player
 
 ### User Story
-Als Erzähler möchte ich Spieler aus der Lobby entfernen können,
-damit ich versehentliche Beitritte korrigieren kann.
+As a Storyteller, I want to remove players from the lobby,
+so I can correct accidental joins.
 
-### Akzeptanzkriterien
-- [ ] Kick-Button erscheint nur für Erzähler
-- [ ] Kick funktioniert nur vor Spielstart
-- [ ] Gekickter Spieler sieht Benachrichtigung
-- [ ] Andere Spieler bleiben unberührt
-- [ ] Erzähler kann nicht gekickt werden
+### Acceptance Criteria
+- [ ] Kick button appears only for storyteller
+- [ ] Kick works only before game start
+- [ ] Kicked player sees notification
+- [ ] Other players remain unaffected
+- [ ] Storyteller cannot be kicked
 ```
 
-#### 2. Step-by-Step Plan erstellen
+#### 2. Create Step-by-Step Plan
 ```markdown
-## Implementation Plan: Spieler kicken
+## Implementation Plan: Kick Player
 
 ### Phase 1: Backend API (1h)
-**Datei:** `game_service.py`
-- [ ] Methode `kick_player(game_id, player_id, requester_id)`
-  - Validierung: Spiel existiert
-  - Validierung: Requester ist Erzähler
-  - Validierung: Spiel nicht gestartet
-  - Validierung: Player existiert und ist nicht Erzähler
-  - Action: Player aus Liste entfernen
-  - Return: Aktualisiertes Game-Objekt
+**File:** `game_service.py`
+- [ ] Method `kick_player(game_id, player_id, requester_id)`
+  - Validation: Game exists
+  - Validation: Requester is storyteller
+  - Validation: Game not started
+  - Validation: Player exists and is not storyteller
+  - Action: Remove player from list
+  - Return: Updated Game object
 
-**Datei:** `models.py`
+**File:** `models.py`
 - [ ] Request Model: `KickPlayerRequest`
   - player_id: str
 - [ ] Response Model: `KickPlayerResponse`
@@ -552,10 +552,10 @@ damit ich versehentliche Beitritte korrigieren kann.
   - kicked_player_name: str
   - remaining_players: int
 
-**Datei:** `main.py`
+**File:** `main.py`
 - [ ] Endpoint: `POST /api/game/{game_id}/kick`
   - Input: KickPlayerRequest + requester_id (Cookie)
-  - Output: KickPlayerResponse oder HTTPException
+  - Output: KickPlayerResponse or HTTPException
 
 **Tests:**
 ```bash
@@ -572,203 +572,203 @@ curl ... -d '{"player_id": "storyteller789"}'
 # Expected: 400 Bad Request
 
 # Edge Case: Game started
-curl ... # nach start_game()
+curl ... # after start_game()
 # Expected: 400 Bad Request
 ```
 
 ### Phase 2: Frontend UI (45min)
-**Datei:** `static/storyteller.html`
-- [ ] Kick-Button zu jedem Spieler-Item hinzufügen
+**File:** `static/storyteller.html`
+- [ ] Add kick button to each player item
   ```html
   <li class="player-item">
     <span class="player-name">Alice</span>
-    <button class="kick-btn" data-player-id="...">Kicken</button>
+    <button class="kick-btn" data-player-id="...">Kick</button>
   </li>
   ```
-- [ ] CSS für .kick-btn (rot, klein)
-- [ ] Event Listener für Kick-Buttons
+- [ ] CSS for .kick-btn (red, small)
+- [ ] Event listener for kick buttons
   ```javascript
   document.addEventListener('click', async (e) => {
     if (e.target.classList.contains('kick-btn')) {
       const playerId = e.target.dataset.playerId;
-      const confirmed = confirm('Spieler wirklich kicken?');
+      const confirmed = confirm('Really kick player?');
       if (confirmed) await kickPlayer(playerId);
     }
   });
   ```
 
-**Datei:** `static/storyteller.html` (JavaScript)
-- [ ] Funktion `kickPlayer(playerId)`
-  - Fetch zu /api/game/{gameId}/kick
-  - Error Handling
-  - Success: Liste neu laden
+**File:** `static/storyteller.html` (JavaScript)
+- [ ] Function `kickPlayer(playerId)`
+  - Fetch to /api/game/{gameId}/kick
+  - Error handling
+  - Success: Reload list
 
-**Datei:** `static/player.html`
-- [ ] Polling prüft ob eigene ID noch in Player-Liste
-- [ ] Falls nicht: Redirect zu /join.html mit Meldung
+**File:** `static/player.html`
+- [ ] Polling checks if own ID still in player list
+- [ ] If not: Redirect to /join.html with message
 
 ### Phase 3: Testing (30min)
 - [ ] Unit Test: `test_kick_player_success()`
 - [ ] Unit Test: `test_kick_storyteller_fails()`
 - [ ] Unit Test: `test_kick_after_start_fails()`
 - [ ] Integration Test: `test_kick_updates_player_list()`
-- [ ] Manual Test: Kompletter Flow im Browser
+- [ ] Manual Test: Complete flow in browser
 
-### Phase 4: Dokumentation (15min)
-**Datei:** `.github/PROJEKT_DOKUMENTATION.md`
-- [ ] API-Endpoint dokumentieren
-- [ ] Screenshot von Kick-Button hinzufügen
-- [ ] Known Limitations aufführen
+### Phase 4: Documentation (15min)
+**File:** `.github/PROJECT_DOCUMENTATION.md`
+- [ ] Document API endpoint
+- [ ] Add screenshot of kick button
+- [ ] List known limitations
 
-**Geschätzte Gesamtzeit:** 2.5 Stunden
+**Estimated Total Time:** 2.5 hours
 ```
 
-#### 3. Abhängigkeiten identifizieren
+#### 3. Identify Dependencies
 ```markdown
 ## Dependency Analysis: Feature X
 
-### Benötigt folgende Features:
-- ✅ Game Creation (bereits implementiert)
-- ✅ Player Joining (bereits implementiert)
-- ⚠️ Authentication System (teilweise: Cookie-based)
-- ❌ WebSocket Support (nicht implementiert, aber nicht blockierend)
+### Requires these features:
+- ✅ Game Creation (already implemented)
+- ✅ Player Joining (already implemented)
+- ⚠️ Authentication System (partial: Cookie-based)
+- ❌ WebSocket Support (not implemented, but not blocking)
 
-### Blockiert folgende Features:
-- ⏳ Player Banning (benötigt Kick als Grundlage)
-- ⏳ Spectator Mode (ähnliche Mechanik)
+### Blocks these features:
+- ⏳ Player Banning (needs Kick as foundation)
+- ⏳ Spectator Mode (similar mechanics)
 
-### Alternativen:
-1. **Kick mit Timeout:** Auto-Rejoin nach 60s erlauben
-2. **Soft-Kick:** Spieler bleibt in Liste, aber "inactive"
-3. **Hard-Kick + IP-Block:** Verhindert Re-Join (später)
+### Alternatives:
+1. **Kick with Timeout:** Allow auto-rejoin after 60s
+2. **Soft-Kick:** Player stays in list but "inactive"
+3. **Hard-Kick + IP-Block:** Prevents re-join (later)
 
-### Empfehlung:
-Start mit Simple Hard-Kick (Plan oben).
-Erweiterungen später basierend auf User-Feedback.
+### Recommendation:
+Start with Simple Hard-Kick (plan above).
+Extensions later based on user feedback.
 ```
 
-#### 4. Technische Entscheidungen dokumentieren
+#### 4. Document Technical Decisions
 ```markdown
-## Technische Entscheidungen: Feature X
+## Technical Decisions: Feature X
 
-### Entscheidung 1: Authentifizierung
-**Problem:** Wie stellen wir sicher, dass nur der Erzähler kicken kann?
-**Optionen:**
-- A) JWT Token in Header
+### Decision 1: Authentication
+**Problem:** How do we ensure only storyteller can kick?
+**Options:**
+- A) JWT Token in header
 - B) Session Cookies
-- C) Player-ID in Cookie (current)
+- C) Player-ID in cookie (current)
 
-**Gewählt:** C - Player-ID in Cookie
-**Begründung:**
-- ✅ Bereits implementiert
-- ✅ Ausreichend für MVP (kein echtes Login nötig)
-- ✅ Einfach zu testen
-- ⚠️ Nicht sicher (aber OK für Casual-Spiel)
-- 🔜 Später: JWT für Production
+**Chosen:** C - Player-ID in Cookie
+**Rationale:**
+- ✅ Already implemented
+- ✅ Sufficient for MVP (no real login needed)
+- ✅ Easy to test
+- ⚠️ Not secure (but OK for casual game)
+- 🔜 Later: JWT for production
 
-### Entscheidung 2: Real-Time Updates
-**Problem:** Wie erfährt gekickter Spieler davon?
-**Optionen:**
+### Decision 2: Real-Time Updates
+**Problem:** How does kicked player find out?
+**Options:**
 - A) WebSocket Push
-- B) Polling (alle 2s)
-- C) Nur bei Reload
+- B) Polling (every 2s)
+- C) Only on reload
 
-**Gewählt:** B - Polling
-**Begründung:**
-- ✅ Bereits für Player-List verwendet
-- ✅ Keine neue Infrastruktur
-- ⚠️ Max. 2s Verzögerung (akzeptabel)
-- 🔜 Später: WebSocket Migration für alle Echzeit-Features
+**Chosen:** B - Polling
+**Rationale:**
+- ✅ Already used for player list
+- ✅ No new infrastructure
+- ⚠️ Max 2s delay (acceptable)
+- 🔜 Later: WebSocket migration for all real-time features
 
-### Entscheidung 3: Error Messages
-**Problem:** Welche Fehlermeldungen zeigen wir User?
-**Strategie:**
-- Backend: Detaillierte error.detail für Debugging
-- Frontend: User-freundliche Übersetzung
-- Beispiel:
+### Decision 3: Error Messages
+**Problem:** Which error messages do we show users?
+**Strategy:**
+- Backend: Detailed error.detail for debugging
+- Frontend: User-friendly translation
+- Example:
   ```python
   # Backend
   raise HTTPException(400, detail="Cannot kick player: game already started")
   
   # Frontend
   if (error.includes('already started')) {
-    alert('Spiel läuft bereits. Kicken nicht mehr möglich.');
+    alert('Game already running. Kick no longer possible.');
   }
   ```
 ```
 
-### Typische Aufgaben
+### Typical Tasks
 
-#### 1. Neues Feature von Grund auf planen
+#### 1. Plan New Feature from Scratch
 ```markdown
-User Request: "Ich will geheime Abstimmungen"
+User Request: "I want secret voting"
 
-## Analyse
-- **Was:** Spieler stimmen ab ohne dass andere Wahl sehen
-- **Warum:** Verhindert Bias/Manipulation
-- **Wie:** Vote an Server → Erzähler sieht Ergebnis
+## Analysis
+- **What:** Players vote without others seeing choice
+- **Why:** Prevents bias/manipulation
+- **How:** Vote to server → Storyteller sees result
 
-## Komplexität: HOCH
-- Neue Konzepte: Voting, Proposals, Results
-- Neue UI: Vote-Dialog, Result-Display
-- Neue API: 3-4 neue Endpoints
+## Complexity: HIGH
+- New concepts: Voting, Proposals, Results
+- New UI: Vote dialog, Result display
+- New API: 3-4 new endpoints
 
-## Alternativen:
-1. Simple: Erzähler fragt mündlich (out of scope)
-2. Medium: Text-basierte Votes
-3. Complex: Timed Votes + Animation
+## Alternatives:
+1. Simple: Storyteller asks verbally (out of scope)
+2. Medium: Text-based votes
+3. Complex: Timed votes + animation
 
-## Empfehlung: Medium (Text-based Votes)
+## Recommendation: Medium (Text-based Votes)
 
 ## Plan:
-[... detaillierter Step-by-Step Plan ...]
+[... detailed step-by-step plan ...]
 ```
 
-#### 2. Bestehende Architektur erweitern
+#### 2. Extend Existing Architecture
 ```markdown
-Aufgabe: Feature Y hinzufügen
+Task: Add Feature Y
 
-## Betroffene Dateien
-- ✏️ `models.py` - Neues Model: VoteProposal
-- ✏️ `game_service.py` - Neue Methode: create_vote()
-- ✏️ `main.py` - Neue Endpoints: POST /vote, GET /vote/{id}
-- ➕ `static/vote.html` - Neue Datei: Vote UI
-- ✏️ `static/storyteller.html` - Button "Abstimmung starten"
+## Affected Files
+- ✏️ `models.py` - New model: VoteProposal
+- ✏️ `game_service.py` - New method: create_vote()
+- ✏️ `main.py` - New endpoints: POST /vote, GET /vote/{id}
+- ➕ `static/vote.html` - New file: Vote UI
+- ✏️ `static/storyteller.html` - Button "Start Vote"
 
 ## Breaking Changes
-- ⚠️ Game Model: Neues Feld `current_vote: Optional[Vote]`
-  - Migration: Bestehende Games setzen auf None
-  - Kompatibilität: OK (Optional)
+- ⚠️ Game Model: New field `current_vote: Optional[Vote]`
+  - Migration: Existing games set to None
+  - Compatibility: OK (Optional)
 
-## Rollout-Plan
-1. Backend implementieren + Tests
-2. Feature-Flag: VOTING_ENABLED = True/False
-3. Soft-Launch: Nur für Test-Games
-4. Monitoring: Error-Rate, Usage
-5. Full Launch: Nach 1 Woche ohne Errors
+## Rollout Plan
+1. Implement backend + tests
+2. Feature flag: VOTING_ENABLED = True/False
+3. Soft launch: Only for test games
+4. Monitoring: Error rate, usage
+5. Full launch: After 1 week without errors
 ```
 
-#### 3. Feature priorisieren
+#### 3. Prioritize Features
 ```markdown
-## Feature Backlog - Priorisierung
+## Feature Backlog - Prioritization
 
 | Feature | Impact | Effort | Priority | Status |
 |---------|--------|--------|----------|--------|
-| WebSocket Echzeit | 🔥 High | 8h | P1 | 🔜 Next |
-| Spieler Kicken | 🟡 Medium | 2h | P2 | ✅ Done |
+| WebSocket Real-time | 🔥 High | 8h | P1 | 🔜 Next |
+| Kick Player | 🟡 Medium | 2h | P2 | ✅ Done |
 | Spectator Mode | 🟢 Low | 4h | P3 | 📋 Planned |
 | Vote System | 🔥 High | 12h | P1 | 📋 Planned |
 | Character Images | 🟡 Medium | 6h | P2 | 💡 Idea |
 
-### Nächste Sprint (2 Wochen):
-1. ✅ Spieler Kicken (Done)
+### Next Sprint (2 weeks):
+1. ✅ Kick Player (Done)
 2. 🔜 Vote System (12h)
 3. 🔜 WebSocket Migration (8h)
-→ Total: 20h (realistisch für 2 Wochen)
+→ Total: 20h (realistic for 2 weeks)
 
-### Danach:
+### After That:
 4. Character Images (Nice-to-Have)
-5. Spectator Mode (Wenn Zeit)
+5. Spectator Mode (If time)
 ```
 
 ### Planning Templates
@@ -777,31 +777,31 @@ Aufgabe: Feature Y hinzufügen
 ```markdown
 # Feature: [Name]
 
-## 1. Überblick
-**User Story:** Als [Rolle] möchte ich [Aktion], damit [Nutzen].
-**Priorität:** P1/P2/P3
-**Geschätzter Aufwand:** Xh
+## 1. Overview
+**User Story:** As [Role] I want [Action], so that [Benefit].
+**Priority:** P1/P2/P3
+**Estimated Effort:** Xh
 
-## 2. Anforderungen
+## 2. Requirements
 ### Functional Requirements
 - [ ] Requirement 1
 - [ ] Requirement 2
 
 ### Non-Functional Requirements
 - [ ] Performance: Response < 200ms
-- [ ] Security: Validierung aller Inputs
-- [ ] UX: Klare Fehlermeldungen
+- [ ] Security: Validate all inputs
+- [ ] UX: Clear error messages
 
-## 3. Technisches Design
-### Architektur
-- **Komponenten:** Service, API, UI
-- **Datenmodelle:** [Liste]
-- **Endpoints:** [Liste]
+## 3. Technical Design
+### Architecture
+- **Components:** Service, API, UI
+- **Data Models:** [List]
+- **Endpoints:** [List]
 
-### Dateien
-- ✏️ Ändern: `file1.py`, `file2.html`
-- ➕ Neu: `file3.py`
-- ❌ Löschen: `deprecated_file.py`
+### Files
+- ✏️ Modify: `file1.py`, `file2.html`
+- ➕ New: `file3.py`
+- ❌ Delete: `deprecated_file.py`
 
 ## 4. Implementation Plan
 ### Phase 1: Backend (Xh)
@@ -829,56 +829,56 @@ pytest tests/test_feature.py -v
 - [ ] Error Case: ...
 
 ## 6. Rollout
-- [ ] Feature Flag erstellen
-- [ ] Staging Deployment
-- [ ] Smoke Tests
-- [ ] Production Deployment
+- [ ] Create feature flag
+- [ ] Staging deployment
+- [ ] Smoke tests
+- [ ] Production deployment
 - [ ] Monitoring
 
-## 7. Dokumentation
-- [ ] API Docs aktualisieren
-- [ ] User Guide schreiben
-- [ ] Changelog-Eintrag
+## 7. Documentation
+- [ ] Update API docs
+- [ ] Write user guide
+- [ ] Changelog entry
 
-## 8. Risiken & Mitigation
-| Risiko | Wahrscheinlichkeit | Impact | Mitigation |
-|--------|-------------------|--------|------------|
-| Performance-Problem | Low | High | Load-Test vor Launch |
+## 8. Risks & Mitigation
+| Risk | Probability | Impact | Mitigation |
+|------|------------|--------|------------|
+| Performance issue | Low | High | Load test before launch |
 
 ## 9. Definition of Done
-- [ ] Code implementiert
-- [ ] Tests geschrieben + passing
+- [ ] Code implemented
+- [ ] Tests written + passing
 - [ ] Code reviewed
-- [ ] Dokumentation aktualisiert
-- [ ] Deployed auf Staging
-- [ ] Manual Testing erfolgreich
-- [ ] Deployed auf Production
+- [ ] Documentation updated
+- [ ] Deployed to staging
+- [ ] Manual testing successful
+- [ ] Deployed to production
 ```
 
 ### Best Practices
 
-1. **Denke in User-Value:** Was bringt es dem User?
-2. **Start Simple:** MVP vor perfekter Lösung
-3. **Iterativ:** Lieber 3 kleine Releases als 1 große
-4. **Testbar:** Plane Tests von Anfang an mit
-5. **Dokumentiere Entscheidungen:** Warum, nicht nur Was
-6. **Kommuniziere früh:** Blocker sofort ansprechen
+1. **Think in User Value:** What does it bring to the user?
+2. **Start Simple:** MVP before perfect solution
+3. **Iterative:** Rather 3 small releases than 1 large
+4. **Testable:** Plan tests from the beginning
+5. **Document Decisions:** Why, not just What
+6. **Communicate Early:** Address blockers immediately
 
 ### Tools & Commands
 
 ```bash
-# Plan erstellen
-copilot: "Plane Feature X step by step"
+# Create plan
+copilot: "Plan feature X step by step"
 
-# Abhängigkeiten analysieren
+# Analyze dependencies
 grep -r "function_name" .
 
-# Effort schätzen
+# Estimate effort
 # - Simple: < 2h
 # - Medium: 2-8h
-# - Complex: > 8h (splitten!)
+# - Complex: > 8h (split!)
 
-# Priorität bestimmen
+# Determine priority
 # P1: Blocker / Critical Bug
 # P2: Important Feature
 # P3: Nice-to-Have
@@ -886,65 +886,65 @@ grep -r "function_name" .
 
 ---
 
-## 🔗 Zusammenarbeit der Agenten
+## 🔗 Agent Collaboration
 
-### Typischer Workflow
+### Typical Workflow
 
 ```
-1. User: "Ich will Feature X"
+1. User: "I want Feature X"
    ↓
-2. Feature Planner: Erstellt detaillierten Plan
+2. Feature Planner: Creates detailed plan
    ↓
-3. Copilot: Implementiert nach Plan
+3. Copilot: Implements according to plan
    ↓
-4. Python-Tester: Schreibt & führt Tests aus
+4. Python Tester: Writes & runs tests
    ↓
-5. Copilot: Fixt Bugs basierend auf Test-Ergebnissen
+5. Copilot: Fixes bugs based on test results
    ↓
-6. DevOps Engineer: Deployt Feature
+6. DevOps Engineer: Deploys feature
    ↓
-7. Monitoring: Feature läuft in Production
+7. Monitoring: Feature runs in production
 ```
 
-### Beispiel: Feature "Vote System" implementieren
+### Example: Implement Feature "Vote System"
 
 ```markdown
 ## Phase 1: Planning (Feature Planner)
-- User Story analysieren
-- Technisches Design erstellen
-- Step-by-Step Plan schreiben
-- Aufwand schätzen: 12h
-- Priorisierung: P1 (High Impact)
+- Analyze user story
+- Create technical design
+- Write step-by-step plan
+- Estimate effort: 12h
+- Prioritization: P1 (High Impact)
 
 ## Phase 2: Implementation (Copilot + Feature Planner)
 - Backend: Models, Service, API (6h)
 - Frontend: UI, JavaScript (4h)
-- Copilot folgt Plan vom Feature Planner
+- Copilot follows plan from Feature Planner
 
-## Phase 3: Testing (Python-Tester)
-- Unit Tests schreiben (1h)
-- Integration Tests schreiben (1h)
-- Test Coverage validieren (>80%)
-- Bugs an Copilot melden
+## Phase 3: Testing (Python Tester)
+- Write unit tests (1h)
+- Write integration tests (1h)
+- Validate test coverage (>80%)
+- Report bugs to Copilot
 
 ## Phase 4: Deployment (DevOps Engineer)
-- Feature Flag hinzufügen
-- CI/CD Pipeline anpassen
-- Staging Deployment
-- Production Deployment
-- Monitoring konfigurieren
+- Add feature flag
+- Adjust CI/CD pipeline
+- Staging deployment
+- Production deployment
+- Configure monitoring
 ```
 
 ---
 
-## 📚 Weitere Ressourcen
+## 📚 Additional Resources
 
-- **Projekt-Dokumentation:** `.github/PROJEKT_DOKUMENTATION.md`
+- **Project Documentation:** `.github/PROJECT_DOCUMENTATION.md`
 - **Coding Instructions:** `.github/copilot-instructions.md`
 - **Main Repository:** `README.md`
 
 ---
 
-**Erstellt:** 2025-01-19  
+**Created:** 2025-01-19  
 **Version:** 1.0.0
 
