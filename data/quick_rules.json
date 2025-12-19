@@ -13,7 +13,7 @@
       "emoji": "2️⃣",
       "title": "Tag-Phase",
       "rules": [
-        "<strong>Diskutieren:</strong>Es darf <span style=\"text-decoration: underline;\">alles</span> zu jederzeit gesagt werden (offen oder privat)",
+        "<strong>Diskutieren:</strong> Es darf <span style=\"text-decoration: underline;\">alles</span> zu jederzeit gesagt werden (offen oder privat)",
         "<strong>Nominieren:</strong> Jeder Spieler darf <span style=\"text-decoration: underline;\">einen</span> anderen nominieren und auch nur einmal pro Tag selber nominiert werden.",
         "<strong>Hinrichtung:</strong> Bei 50%+ Stimmen wird nominierter Spieler hingerichtet",
         "Nur <strong>1 Hinrichtung pro Tag</strong> möglich",

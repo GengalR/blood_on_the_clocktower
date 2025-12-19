@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blood on the Clocktower - Spieler</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:wght@400;600;700&family=Lora:wght@400;500;600&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -12,10 +14,14 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Lora', 'Georgia', serif;
+            background:
+                linear-gradient(to bottom, rgba(15, 15, 15, 0.5), rgba(45, 27, 61, 0.4)),
+                url('/static/images/blood_on_the_clocktower.webp') center/cover no-repeat fixed;
+            background-attachment: fixed;
             min-height: 100vh;
             padding: 20px;
+            color: #f5f5dc;
         }
 
         .container {
@@ -24,17 +30,27 @@
         }
 
         .card {
-            background: white;
+            background: rgba(26, 26, 26, 0.85);
+            backdrop-filter: blur(12px) saturate(150%);
+            -webkit-backdrop-filter: blur(12px) saturate(150%);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.9),
+                inset 0 0 40px rgba(139, 0, 0, 0.1),
+                0 0 30px rgba(139, 0, 0, 0.3);
             margin-bottom: 20px;
+            border: 2px solid rgba(139, 0, 0, 0.4);
         }
 
         h1 {
-            color: #333;
+            font-family: 'Cinzel', serif;
+            color: #dc143c;
             margin-bottom: 20px;
             text-align: center;
+            text-shadow:
+                0 0 20px rgba(220, 20, 60, 0.8),
+                2px 2px 4px rgba(0, 0, 0, 0.9);
         }
 
         .waiting {
@@ -43,12 +59,14 @@
         }
 
         .waiting h2 {
-            color: #667eea;
+            color: #dc143c;
+            font-family: 'Cinzel', serif;
             margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(220, 20, 60, 0.6);
         }
 
         .waiting p {
-            color: #666;
+            color: #c0c0c0;
             font-size: 16px;
         }
 
@@ -60,8 +78,9 @@
         .role-name {
             font-size: 32px;
             font-weight: bold;
-            color: #333;
+            color: #d4af37;
             margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
         }
 
         .role-type {
@@ -74,40 +93,48 @@
         }
 
         .role-type.townsfolk {
-            background: #e3f2fd;
-            color: #1976d2;
+            background: rgba(25, 118, 210, 0.3);
+            color: #64b5f6;
+            border: 1px solid rgba(25, 118, 210, 0.5);
         }
 
         .role-type.outsiders {
-            background: #fff3e0;
-            color: #f57c00;
+            background: rgba(245, 124, 0, 0.3);
+            color: #ffb74d;
+            border: 1px solid rgba(245, 124, 0, 0.5);
         }
 
         .role-type.minions {
-            background: #fce4ec;
-            color: #c2185b;
+            background: rgba(194, 24, 91, 0.3);
+            color: #f06292;
+            border: 1px solid rgba(194, 24, 91, 0.5);
         }
 
         .role-type.demons {
-            background: #ffebee;
-            color: #d32f2f;
+            background: rgba(211, 47, 47, 0.3);
+            color: #e57373;
+            border: 1px solid rgba(211, 47, 47, 0.5);
         }
 
         .role-ability {
-            background: #f8f9fa;
+            background: rgba(45, 27, 61, 0.3);
+            border: 1px solid rgba(139, 0, 0, 0.3);
             padding: 20px;
             border-radius: 12px;
             margin-top: 20px;
+            backdrop-filter: blur(5px);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
         }
 
         .role-ability h3 {
-            color: #333;
+            color: #d4af37;
+            font-family: 'Crimson Text', serif;
             margin-bottom: 10px;
             font-size: 18px;
         }
 
         .role-ability p {
-            color: #555;
+            color: #c0c0c0;
             line-height: 1.6;
             font-size: 16px;
         }
@@ -116,18 +143,27 @@
             display: block;
             width: 100%;
             padding: 12px;
-            background: #667eea;
-            color: white;
-            border: none;
+            background: linear-gradient(135deg, #8b0000 0%, #4a0000 100%);
+            border: 2px solid rgba(220, 20, 60, 0.4);
+            color: #f5f5dc;
+            font-family: 'Cinzel', serif;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             margin-top: 15px;
+            box-shadow:
+                0 4px 15px rgba(139, 0, 0, 0.5),
+                0 0 20px rgba(139, 0, 0, 0.3);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         .refresh-btn:hover {
-            background: #5568d3;
+            background: linear-gradient(135deg, #a00000 0%, #5a0000 100%);
+            transform: translateY(-2px);
+            box-shadow:
+                0 6px 20px rgba(139, 0, 0, 0.7),
+                0 0 30px rgba(255, 0, 0, 0.4);
         }
 
         .spinner {
@@ -151,25 +187,29 @@
             top: 20px;
             right: 20px;
             padding: 14px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, #8b0000 0%, #4a0000 100%);
+            color: #fff;
+            border: 2px solid rgba(255, 68, 68, 0.4);
             border-radius: 12px;
             cursor: pointer;
             z-index: 1000;
             font-size: 18px;
             font-weight: 700;
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(139, 0, 0, 0.6),
+                        0 0 30px rgba(139, 0, 0, 0.3);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .quick-rules-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
-            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(139, 0, 0, 0.8),
+                        0 0 40px rgba(255, 0, 0, 0.5);
+            border-color: rgba(255, 68, 68, 0.7);
+            background: linear-gradient(135deg, #a00000 0%, #5a0000 100%);
         }
 
         .quick-rules-btn:active {
@@ -184,7 +224,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
             z-index: 2000;
             justify-content: center;
             align-items: center;
@@ -195,14 +236,17 @@
         }
 
         .modal-content {
-            background: white;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 2px solid #8b0000;
             border-radius: 10px;
             padding: 30px;
             max-width: 600px;
             max-height: 80vh;
             overflow-y: auto;
             position: relative;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9),
+                        0 0 40px rgba(139, 0, 0, 0.3),
+                        inset 0 0 60px rgba(0, 0, 0, 0.3);
         }
 
         .modal-close {
@@ -213,36 +257,50 @@
             border: none;
             font-size: 30px;
             cursor: pointer;
-            color: #888;
+            color: #8b0000;
             line-height: 1;
             width: 30px;
             height: 30px;
+            transition: all 0.3s ease;
         }
 
         .modal-close:hover {
-            color: #333;
+            color: #ff0000;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+            transform: rotate(90deg);
         }
 
         .modal-content h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 24px;
+            color: #ff4444;
+            margin-bottom: 25px;
+            font-size: 28px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+            font-weight: 700;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #8b0000;
+            padding-bottom: 15px;
         }
 
         .rule-section {
-            margin: 20px 0;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e0e0e0;
+            margin: 25px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #8b0000;
+            border-radius: 6px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
         }
 
         .rule-section:last-child {
-            border-bottom: none;
+            margin-bottom: 0;
         }
 
         .rule-section h3 {
-            color: #2d3748;
-            margin-bottom: 10px;
-            font-size: 18px;
+            color: #ff6666;
+            margin-bottom: 15px;
+            font-size: 20px;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(255, 102, 102, 0.3);
         }
 
         .rule-section ul {
@@ -251,13 +309,19 @@
         }
 
         .rule-section li {
-            padding: 5px 0;
-            color: #555;
-            line-height: 1.6;
+            padding: 8px 0;
+            color: #d4d4d4;
+            line-height: 1.8;
+            border-bottom: 1px solid rgba(139, 0, 0, 0.2);
+        }
+
+        .rule-section li:last-child {
+            border-bottom: none;
         }
 
         .rule-section li strong {
-            color: #333;
+            color: #ff8888;
+            font-weight: 600;
         }
 
         /* Mobile Responsive */
@@ -361,7 +425,7 @@
                     sectionDiv.className = 'rule-section';
 
                     const heading = document.createElement('h3');
-                    heading.textContent = `${section.emoji} ${section.title}`;
+                    heading.textContent = section.title; // Emoji entfernt
                     sectionDiv.appendChild(heading);
 
                     const ul = document.createElement('ul');

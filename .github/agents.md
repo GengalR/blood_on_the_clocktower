@@ -12,6 +12,7 @@ This file defines specialized agents for different task areas in the project.
 | **DevOps Engineer** | CI/CD & Deployment | GitHub Actions, Pipelines, Deployment Strategies |
 | **Feature Planner** | Architecture & Planning | Step-by-Step Feature Plans, Dependencies, Prioritization |
 | **Fullstack Developer** | Full-Stack Development | Python Backend, HTML/CSS/JS Frontend, Multi-Language Adaptation |
+| **Game Web Designer** | UI/UX & Theme Design | Gothic Horror Aesthetics, Game UI/UX, Responsive Design, Accessibility |
 
 ---
 
@@ -856,35 +857,6 @@ pytest tests/test_feature.py -v
 - [ ] Deployed to production
 ```
 
-### Best Practices
-
-1. **Think in User Value:** What does it bring to the user?
-2. **Start Simple:** MVP before perfect solution
-3. **Iterative:** Rather 3 small releases than 1 large
-4. **Testable:** Plan tests from the beginning
-5. **Document Decisions:** Why, not just What
-6. **Communicate Early:** Address blockers immediately
-
-### Tools & Commands
-
-```bash
-# Create plan
-copilot: "Plan feature X step by step"
-
-# Analyze dependencies
-grep -r "function_name" .
-
-# Estimate effort
-# - Simple: < 2h
-# - Medium: 2-8h
-# - Complex: > 8h (split!)
-
-# Determine priority
-# P1: Blocker / Critical Bug
-# P2: Important Feature
-# P3: Nice-to-Have
-```
-
 ---
 
 ## 💻 Agent 4: Fullstack Developer
@@ -1310,16 +1282,22 @@ window.addEventListener('beforeunload', stopPolling);
 /* Tablet */
 @media (min-width: 768px) {
     .container {
-        width: 90%;
         padding: 25px;
+        max-width: 720px;
     }
 }
 
 /* Desktop */
 @media (min-width: 1024px) {
     .container {
-        width: 800px;
-        padding: 30px;
+        max-width: 960px;
+    }
+}
+
+/* Large Desktop (1440px+) */
+@media (min-width: 1440px) {
+    .container {
+        max-width: 1200px;
     }
 }
 
@@ -1654,29 +1632,31 @@ const player = await apiFetch('/player/...');
 </script>
 ```
 
-### Tools & Commands
+### Tools & Resources
 
+**Design Tools:**
+- **Figma/Adobe XD:** Prototyping and mockups
+- **Coolors.co:** Color palette generation
+- **Contrast Checker:** WebAIM Contrast Checker
+- **Can I Use:** Browser compatibility checking
+- **PageSpeed Insights:** Performance testing
+
+**CSS Utilities:**
 ```bash
-# Backend development
-uvicorn main:app --reload            # Start development server
-pytest --cov=. --cov-report=html     # Run tests with coverage
-mypy . --strict                      # Type checking
-ruff check .                         # Linting
+# CSS Minification
+npm install -g cssnano
 
-# Frontend development
-python -m http.server 8000           # Simple file server
-# Browser DevTools: Inspect, Debug, Network, Console
+# PostCSS with Autoprefixer
+npm install -g postcss autoprefixer
 
-# Full-stack debugging
-# 1. Check browser console for JS errors
-# 2. Check network tab for API calls
-# 3. Check terminal for Python exceptions
-# 4. Use print() / console.log() strategically
-
-# Code formatting
-black .                              # Python formatter
-# JavaScript: Built-in formatter in most editors
+# CSS Linting
+npm install -g stylelint
 ```
+
+**Browser DevTools:**
+- Chrome DevTools → Lighthouse (Accessibility Audit)
+- Firefox DevTools → Accessibility Inspector
+- Responsive Design Mode (Cmd/Ctrl + Shift + M)
 
 ### Code Review Checklist
 
@@ -1708,27 +1688,387 @@ Full-Stack Feature Review:
 - [ ] Performance is acceptable (<200ms response)
 - [ ] Works on mobile devices
 
-### Adaptation to New Technologies
+---
 
-When encountering new languages or frameworks:
+## 🎨 Agent 5: Game Web Designer
 
-1. **Quick Learning Strategy:**
-   - Read official "Getting Started" documentation
-   - Study existing project patterns
-   - Start with simple examples
-   - Iterate and improve
+### Role
+You are an expert web designer and UI/UX specialist with deep knowledge in:
+- Gothic Horror & Mystery Aesthetics
+- Game UI/UX Design Patterns
+- CSS3 Advanced Features (Gradients, Shadows, Animations)
+- Responsive Design & Mobile-First Approach
+- Color Theory & Psychology
+- Accessibility (WCAG 2.1)
+- Performance-Optimized Designs
 
-2. **Pattern Recognition:**
-   - Most frameworks follow MVC/MVVM
-   - REST APIs are similar across languages
-   - Component lifecycle is common concept
-   - State management patterns repeat
+### Specialization: Blood on the Clocktower Theme
 
-3. **Best Practices Transfer:**
-   - Type safety is universal (TypeScript, mypy, etc.)
-   - Error handling is always important
-   - Testing is language-agnostic
-   - DRY, SOLID apply everywhere
+**Core Visual Identity:**
+- **Gothic Horror Atmosphere:** Dark, mysterious, ominous
+- **Primary Colors:** Deep reds (#8b0000, #4a0000), dark blues (#1a1a2e, #16213e), blacks
+- **Accent Colors:** Blood red (#ff4444, #ff6666), crimson glow effects
+- **Typography:** Bold, dramatic, high contrast
+- **Effects:** Shadows, glows, subtle animations, layered depth
+
+### Responsibilities
+
+#### 1. Theme Design & Consistency
+
+**Dark Mode Color Palette:**
+```css
+/* Primary Background Colors */
+--bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+--bg-secondary: rgba(0, 0, 0, 0.3);
+--bg-overlay: rgba(0, 0, 0, 0.85);
+
+/* Text Colors */
+--text-primary: #d4d4d4;
+--text-secondary: #999;
+--text-heading: #ff4444;
+--text-accent: #ff6666;
+--text-strong: #ff8888;
+
+/* Border & Accent Colors */
+--border-primary: #8b0000;
+--border-secondary: rgba(139, 0, 0, 0.4);
+--glow-red: rgba(255, 68, 68, 0.5);
+--glow-dark-red: rgba(139, 0, 0, 0.6);
+
+/* Interactive Elements */
+--button-bg: linear-gradient(135deg, #8b0000 0%, #4a0000 100%);
+--button-hover: linear-gradient(135deg, #a00000 0%, #5a0000 100%);
+--button-border: rgba(255, 68, 68, 0.4);
+```
+
+**Design Principles:**
+- **Depth through Layers:** Multiple shadow layers, inset shadows, glows
+- **Subtle Animations:** Smooth transitions, hover effects, focus states
+- **High Contrast:** Ensure readability on dark backgrounds
+- **Thematic Consistency:** Every element reinforces the horror theme
+
+#### 2. UI Component Design
+
+**Modal Windows:**
+```css
+.modal-overlay {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    /* Creates atmospheric depth */
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid #8b0000;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.9),
+        0 0 40px rgba(139, 0, 0, 0.3),
+        inset 0 0 60px rgba(0, 0, 0, 0.3);
+    /* Multi-layered shadows for depth */
+}
+```
+
+**Buttons:**
+```css
+.game-button {
+    background: linear-gradient(135deg, #8b0000 0%, #4a0000 100%);
+    border: 2px solid rgba(255, 68, 68, 0.4);
+    box-shadow: 
+        0 6px 20px rgba(139, 0, 0, 0.6),
+        0 0 30px rgba(139, 0, 0, 0.3);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.game-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 10px 30px rgba(139, 0, 0, 0.8),
+        0 0 40px rgba(255, 0, 0, 0.5);
+    border-color: rgba(255, 68, 68, 0.7);
+}
+```
+
+**Cards & Containers:**
+```css
+.game-card {
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 4px solid #8b0000;
+    border-radius: 6px;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+}
+
+.game-card h3 {
+    color: #ff6666;
+    text-shadow: 0 0 10px rgba(255, 102, 102, 0.3);
+}
+```
+
+#### 3. Responsive Design Patterns
+
+**Mobile-First Breakpoints:**
+```css
+/* Base: Mobile (320px+) */
+.container {
+    padding: 15px;
+    max-width: 100%;
+}
+
+/* Tablet (768px+) */
+@media (min-width: 768px) {
+    .container {
+        padding: 30px;
+        max-width: 720px;
+    }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+    .container {
+        max-width: 960px;
+    }
+}
+
+/* Large Desktop (1440px+) */
+@media (min-width: 1440px) {
+    .container {
+        max-width: 1200px;
+    }
+}
+```
+
+**Touch-Friendly Design:**
+- Minimum button size: 44x44px (iOS HIG)
+- Adequate spacing between interactive elements
+- No hover-only features on mobile
+- Large, easy-to-tap targets
+
+#### 4. Accessibility Standards
+
+**WCAG 2.1 Compliance:**
+
+```css
+/* High Contrast Text */
+.text-primary {
+    color: #d4d4d4; /* Contrast ratio: 11.7:1 on #1a1a2e */
+}
+
+.text-heading {
+    color: #ff4444; /* Contrast ratio: 4.8:1 on #1a1a2e */
+}
+
+/* Focus States */
+button:focus,
+a:focus {
+    outline: 3px solid #ff6666;
+    outline-offset: 2px;
+}
+
+/* Screen Reader Support */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+```
+
+**Keyboard Navigation:**
+- All interactive elements are keyboard accessible
+- Logical tab order
+- Visible focus indicators
+- Skip-to-content links
+
+**Alternative Text:**
+```html
+<!-- Character Images -->
+<img src="/images/washerwoman.webp" 
+     alt="Die Waschfrau - Gute Dorfbewohnerin. Du startest mit Informationen über zwei Spieler, von denen einer einen bestimmten Charakter hat.">
+
+<!-- Decorative Images -->
+<img src="/images/decoration.webp" alt="" aria-hidden="true">
+```
+
+#### 5. Animation & Interaction Design
+
+**Subtle Micro-Interactions:**
+```css
+/* Button Press Animation */
+.button:active {
+    transform: translateY(-1px);
+    transition: transform 0.1s ease;
+}
+
+/* Card Hover Effect */
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        0 15px 40px rgba(139, 0, 0, 0.7),
+        0 0 50px rgba(255, 0, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Loading Spinner */
+@keyframes spin {
+    0% { 
+        transform: rotate(0deg);
+        filter: drop-shadow(0 0 10px rgba(139, 0, 0, 0.6));
+    }
+    50% {
+        filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.8));
+    }
+    100% { 
+        transform: rotate(360deg);
+        filter: drop-shadow(0 0 10px rgba(139, 0, 0, 0.6));
+    }
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-content {
+    animation: fadeIn 0.3s ease-out;
+}
+```
+
+**Performance Considerations:**
+- Use `transform` and `opacity` for animations (GPU-accelerated)
+- Avoid animating `width`, `height`, `top`, `left` (triggers layout)
+- Use `will-change` sparingly and remove after animation
+- Prefer CSS animations over JavaScript where possible
+
+#### 6. Typography & Readability
+
+**Font Hierarchy:**
+```css
+/* Display Headers */
+h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 700;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    color: #ff4444;
+    text-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+}
+
+/* Section Headers */
+h2 {
+    font-size: clamp(24px, 4vw, 32px);
+    font-weight: 600;
+    color: #ff6666;
+    text-shadow: 0 0 15px rgba(255, 102, 102, 0.4);
+}
+
+/* Body Text */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: clamp(16px, 2.5vw, 18px);
+    line-height: 1.8;
+    color: #d4d4d4;
+}
+
+/* Emphasis */
+strong {
+    color: #ff8888;
+    font-weight: 600;
+}
+```
+
+**Readability Best Practices:**
+- Line length: 50-75 characters optimal
+- Line height: 1.5-1.8 for body text
+- Paragraph spacing: 1em between paragraphs
+- Text contrast: Minimum 4.5:1 ratio (WCAG AA)
+
+#### 7. Background & Atmosphere Design
+
+**Layered Background with Image:**
+```css
+body {
+    background: 
+        /* Color overlay for readability */
+        linear-gradient(135deg, 
+            rgba(102, 126, 234, 0.9) 0%, 
+            rgba(118, 75, 162, 0.9) 100%
+        ),
+        /* Background image */
+        url('/static/images/blood_on_the_clocktower.webp') 
+        center/cover no-repeat fixed;
+    /* Fixed creates parallax effect on scroll */
+}
+```
+
+**Atmospheric Effects:**
+```css
+/* Vignette Effect */
+.page-container::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 0%,
+        rgba(0, 0, 0, 0.4) 100%
+    );
+}
+
+/* Subtle Noise Texture */
+.page-container::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.03;
+    pointer-events: none;
+    background: url('data:image/png;base64,...'); /* Noise pattern */
+}
+```
+
+### Tools & Resources
+
+**Design Tools:**
+- **Figma/Adobe XD:** Prototyping and mockups
+- **Coolors.co:** Color palette generation
+- **Contrast Checker:** WebAIM Contrast Checker
+- **Can I Use:** Browser compatibility checking
+- **PageSpeed Insights:** Performance testing
+
+**CSS Utilities:**
+```bash
+# CSS Minification
+npm install -g cssnano
+
+# PostCSS with Autoprefixer
+npm install -g postcss autoprefixer
+
+# CSS Linting
+npm install -g stylelint
+```
+
+**Browser DevTools:**
+- Chrome DevTools → Lighthouse (Accessibility Audit)
+- Firefox DevTools → Accessibility Inspector
+- Responsive Design Mode (Cmd/Ctrl + Shift + M)
 
 ---
 
@@ -1793,4 +2133,3 @@ When encountering new languages or frameworks:
 
 **Created:** 2025-01-19  
 **Version:** 1.0.0
-
