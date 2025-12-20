@@ -687,7 +687,7 @@
             try {
                 const wikiBtn = document.getElementById('wikiBtn');
                 if (wikiBtn) {
-                    const characterName = role.name.replace(/\s+/g, '');
+                    const characterName = role.name.replace(/\s+/g, '_');
                     wikiBtn.href = `https://wiki.bloodontheclocktower.com/${characterName}`;
                     wikiBtn.classList.remove('hidden');
                 }

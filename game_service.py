@@ -147,10 +147,42 @@ class GameService:
         for player, character in zip(non_storyteller_players, characters):
             player.character = character
 
+        # Drunk-Mechanik: Drunk-Spieler erhalten eine falsche Townsfolk-Rolle
+        self._assign_drunk_perceived_roles(game)
+
         game.started = True
         game.player_count = player_count
 
         return game
+
+    def _assign_drunk_perceived_roles(self, game: Game) -> None:
+        """
+        Weist Drunk-Spielern eine zufällige Townsfolk-Rolle zu, die sie glauben zu sein.
+
+        Args:
+            game: Das aktuelle Spiel
+        """
+        # Hole alle verfügbaren Townsfolk aus der Edition
+        townsfolk_characters = self.editions_data[game.edition]["characters"]["townsfolk"]
+
+        # Finde alle Drunk-Spieler
+        for player in game.players:
+            if player.character and player.character.id == "drunk":
+                # Wähle zufällige Townsfolk-Rolle
+                fake_townsfolk_data = random.choice(townsfolk_characters)
+
+                # Erstelle Character-Objekt für die falsche Rolle
+                fake_character = Character(
+                    id=fake_townsfolk_data["id"],
+                    name=fake_townsfolk_data["name"],
+                    ability=fake_townsfolk_data["ability"],
+                    first_night=fake_townsfolk_data["first_night"],
+                    other_nights=fake_townsfolk_data["other_nights"],
+                    type="townsfolk"
+                )
+
+                # Weise die falsche Rolle zu
+                player.perceived_character = fake_character
 
     def get_night_order(self, game_id: str) -> List[dict]:
         """Gibt die Nachtreihenfolge für den Erzähler zurück"""
@@ -159,10 +191,14 @@ class GameService:
             raise ValueError("Spiel nicht gefunden oder noch nicht gestartet")
 
         # Sammle alle Charaktere im Spiel
-        characters_in_game = [
-            p.character for p in game.players
-            if p.character is not None
-        ]
+        # Für Drunk: Verwende perceived_character statt character
+        characters_in_game = []
+        for p in game.players:
+            if p.character is None:
+                continue
+            # Wenn Drunk: Verwende falsche Rolle für Nachtreihenfolge
+            display_char = p.perceived_character if p.perceived_character else p.character
+            characters_in_game.append(display_char)
 
         # Erste Nacht - erstelle Liste mit Infos am Anfang
         first_night_actions = []
@@ -217,13 +253,22 @@ class GameService:
         }
 
     def get_player_role(self, game_id: str, player_id: str) -> Optional[Character]:
-        """Gibt die Rolle eines Spielers zurück"""
+        """
+        Gibt die Rolle eines Spielers zurück.
+
+        Für Drunk-Spieler: Gibt die falsche Townsfolk-Rolle zurück (perceived_character).
+        Für alle anderen: Gibt die echte Rolle zurück (character).
+        """
         game = self.games.get(game_id)
         if not game:
             return None
 
         for player in game.players:
             if player.id == player_id:
+                # Wenn Drunk: Gib die falsche Rolle zurück
+                if player.perceived_character:
+                    return player.perceived_character
+                # Ansonsten: Gib echte Rolle zurück
                 return player.character
 
         return None
@@ -244,15 +289,23 @@ class GameService:
             raise ValueError("Nur der Erzähler kann diese Ansicht sehen")
 
         # Erstelle Übersicht
-        players_overview = [
-            {
+        players_overview = []
+        for p in game.players:
+            if p.is_storyteller:
+                continue
+
+            # Für Drunk: Zeige perceived_character statt character
+            display_character = p.perceived_character if p.perceived_character else p.character
+
+            player_data = {
                 "name": p.name,
-                "character": p.character.name if p.character else None,
-                "ability": p.character.ability if p.character else None,
-                "type": p.character.type if p.character else None
+                "character": display_character.name if display_character else None,
+                "ability": display_character.ability if display_character else None,
+                "type": display_character.type if display_character else None,
+                "is_drunk": bool(p.perceived_character)  # True wenn Drunk
             }
-            for p in game.players if not p.is_storyteller
-        ]
+
+            players_overview.append(player_data)
 
         night_order = self.get_night_order(game_id) if game.started else None
 
