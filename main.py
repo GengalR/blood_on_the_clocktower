@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
-from models import CreateGameRequest, JoinGameRequest, StartGameRequest
+from models import CreateGameRequest, JoinGameRequest, StartGameRequest, SetPlayerFlagRequest, RemovePlayerFlagRequest
 from game_service import game_service
 import uvicorn
 import socket
@@ -156,6 +156,112 @@ async def get_storyteller_overview(game_id: str, storyteller_id: str):
         return game_service.get_storyteller_overview(game_id, storyteller_id)
     except ValueError as e:
         raise HTTPException(status_code=403, detail=str(e))
+
+
+@app.post("/api/game/{game_id}/player/{player_id}/flag/set")
+async def set_player_flag(
+    game_id: str,
+    player_id: str,
+    storyteller_id: str,
+    request: SetPlayerFlagRequest
+):
+    """
+    Setzt ein Flag für einen Spieler.
+
+    Args:
+        game_id: Spiel-ID
+        player_id: Spieler-ID
+        storyteller_id: Erzähler-ID (als Query-Parameter)
+        request: SetPlayerFlagRequest mit flag_type und optional metadata
+
+    Returns:
+        Aktualisierter Player
+
+    Example:
+        POST /api/game/abc123/player/player1/flag/set?storyteller_id=st1
+        Body: {"flag_type": "poisoned", "metadata": {"night": 1}}
+    """
+    try:
+        player = game_service.set_player_flag(
+            game_id=game_id,
+            player_id=player_id,
+            flag_type=request.flag_type.value,
+            storyteller_id=storyteller_id,
+            metadata=request.metadata
+        )
+        return {
+            "success": True,
+            "player_id": player.id,
+            "player_name": player.name,
+            "flags": player.flags,
+            "flag_metadata": player.flag_metadata
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.delete("/api/game/{game_id}/player/{player_id}/flag/{flag_type}")
+async def remove_player_flag(
+    game_id: str,
+    player_id: str,
+    flag_type: str,
+    storyteller_id: str
+):
+    """
+    Entfernt ein Flag von einem Spieler.
+
+    Args:
+        game_id: Spiel-ID
+        player_id: Spieler-ID
+        flag_type: Typ des Flags (z.B. "poisoned")
+        storyteller_id: Erzähler-ID (als Query-Parameter)
+
+    Returns:
+        Aktualisierter Player
+
+    Example:
+        DELETE /api/game/abc123/player/player1/flag/poisoned?storyteller_id=st1
+    """
+    try:
+        player = game_service.remove_player_flag(
+            game_id=game_id,
+            player_id=player_id,
+            flag_type=flag_type,
+            storyteller_id=storyteller_id
+        )
+        return {
+            "success": True,
+            "player_id": player.id,
+            "player_name": player.name,
+            "flags": player.flags
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/game/{game_id}/flags/clear-temporary")
+async def clear_temporary_flags(game_id: str, storyteller_id: str):
+    """
+    Entfernt alle temporären Flags (z.B. am Ende einer Nacht).
+
+    Args:
+        game_id: Spiel-ID
+        storyteller_id: Erzähler-ID (als Query-Parameter)
+
+    Returns:
+        Success-Nachricht
+
+    Example:
+        POST /api/game/abc123/flags/clear-temporary?storyteller_id=st1
+    """
+    try:
+        game_service.clear_temporary_flags(game_id, storyteller_id)
+        return {
+            "success": True,
+            "message": "Temporäre Flags wurden entfernt"
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 # Frontend Routes

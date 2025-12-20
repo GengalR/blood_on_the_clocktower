@@ -278,6 +278,48 @@
             margin-top: 5px;
         }
 
+        .flag-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 6px;
+            margin-top: 4px;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+        }
+
+        .flag-controls {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            gap: 5px;
+        }
+
+        .flag-select {
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .flag-btn-add:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4);
+            border-color: rgba(76, 175, 80, 0.7);
+        }
+
+        .flag-btn-clear:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(139, 0, 0, 0.4);
+            border-color: rgba(255, 68, 68, 0.7);
+        }
+
+        .flag-btn-add:active,
+        .flag-btn-clear:active {
+            transform: translateY(0);
+        }
+
         .night-order {
             margin-top: 20px;
         }
@@ -703,6 +745,13 @@
 
             <div class="card" id="nightOrderCard" style="display: none;">
                 <h2>🌙 Nachtreihenfolge</h2>
+
+                <div style="margin-bottom: 20px;">
+                    <button onclick="clearAllTemporaryFlags()" style="padding: 10px 20px; background: linear-gradient(135deg, rgba(139, 0, 0, 0.4) 0%, rgba(74, 0, 0, 0.4) 100%); color: #fff; border: 1px solid rgba(139, 0, 0, 0.6); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">
+                        🧹 Alle temporären Flags löschen
+                    </button>
+                </div>
+
                 <div class="night-order">
                     <div class="night-section">
                         <h3>Erste Nacht</h3>
@@ -1056,6 +1105,38 @@
                                     </a>`;
                     }
 
+                    // Aktive Flags anzeigen
+                    let flagBadges = '';
+                    if (player.flags && Object.keys(player.flags).length > 0) {
+                        for (const [flagType, isActive] of Object.entries(player.flags)) {
+                            if (isActive) {
+                                const flagInfo = getFlagInfo(flagType);
+                                flagBadges += `<span class="flag-badge" style="background: ${flagInfo.color};" title="${flagInfo.description}">${flagInfo.icon} ${flagInfo.label}</span>`;
+                            }
+                        }
+                    }
+
+                    // Flag-Verwaltungs-Buttons (nur wenn Spiel gestartet)
+                    let flagControls = '';
+                    if (gameData.started) {
+                        flagControls = `
+                            <div class="flag-controls" style="margin-top: 10px;">
+                                <select class="flag-select" id="flag-select-${player.player_id}" style="padding: 5px 10px; border-radius: 6px; background: rgba(15, 15, 15, 0.6); color: #f5f5dc; border: 1px solid rgba(139, 0, 0, 0.4); font-size: 12px; margin-right: 5px;">
+                                    <option value="">🏳️ Flag wählen...</option>
+                                    <option value="poisoned">🧪 Vergiftet</option>
+                                    <option value="demon">👹 Dämon</option>
+                                    <option value="red_herring">🎯 Red Herring</option>
+                                    <option value="dead">💀 Tot</option>
+                                    <option value="used_ability">✅ Fähigkeit genutzt</option>
+                                    <option value="protected">🛡️ Geschützt</option>
+                                    <option value="master">🎓 Meister</option>
+                                </select>
+                                <button class="flag-btn-add" onclick="setPlayerFlag('${player.player_id}')" style="padding: 5px 12px; background: linear-gradient(135deg, rgba(45, 122, 45, 0.3) 0%, rgba(26, 77, 26, 0.3) 100%); color: #fff; border: 1px solid rgba(76, 175, 80, 0.5); border-radius: 6px; cursor: pointer; font-size: 12px; margin-right: 5px;">Setzen</button>
+                                <button class="flag-btn-clear" onclick="clearPlayerFlags('${player.player_id}')" style="padding: 5px 12px; background: linear-gradient(135deg, rgba(139, 0, 0, 0.3) 0%, rgba(74, 0, 0, 0.3) 100%); color: #fff; border: 1px solid rgba(139, 0, 0, 0.5); border-radius: 6px; cursor: pointer; font-size: 12px;">Flags löschen</button>
+                            </div>
+                        `;
+                    }
+
                     div.innerHTML = `
                         <div>
                             <div class="player-name">${player.name}</div>
@@ -1067,6 +1148,8 @@
                                 </div>
                                 <div class="player-ability">${player.ability}</div>
                             ` : '<div class="player-role">Rolle noch nicht zugewiesen</div>'}
+                            ${flagBadges ? `<div class="player-flags" style="margin-top: 8px;">${flagBadges}</div>` : ''}
+                            ${flagControls}
                         </div>
                     `;
                     playersList.appendChild(div);
@@ -1173,8 +1256,129 @@
                     alert('Link kopiert! 📋');
                 });
             };
+
+            // Flag-Verwaltungsfunktionen
+            window.getFlagInfo = function(flagType) {
+                const flagInfoMap = {
+                    'poisoned': { icon: '🧪', label: 'Vergiftet', color: 'linear-gradient(135deg, #9c27b0 0%, #673ab7 100%)', description: 'Spieler ist vergiftet (Poisoner)' },
+                    'demon': { icon: '👹', label: 'Dämon', color: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)', description: 'Aktueller Dämon' },
+                    'red_herring': { icon: '🎯', label: 'Red Herring', color: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)', description: 'Red Herring (Fortune Teller)' },
+                    'dead': { icon: '💀', label: 'Tot', color: 'linear-gradient(135deg, #424242 0%, #212121 100%)', description: 'Spieler ist tot' },
+                    'used_ability': { icon: '✅', label: 'Fähigkeit genutzt', color: 'linear-gradient(135deg, #4caf50 0%, #388e3c 100%)', description: 'Fähigkeit wurde bereits genutzt' },
+                    'protected': { icon: '🛡️', label: 'Geschützt', color: 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)', description: 'Geschützt (Monk)' },
+                    'master': { icon: '🎓', label: 'Meister', color: 'linear-gradient(135deg, #ffd700 0%, #ffa500 100%)', description: 'Meister-Markierung' }
+                };
+                return flagInfoMap[flagType] || { icon: '🏳️', label: flagType, color: 'linear-gradient(135deg, #757575 0%, #616161 100%)', description: 'Unbekanntes Flag' };
+            };
+
+            window.setPlayerFlag = async function(playerId) {
+                const selectElement = document.getElementById(`flag-select-${playerId}`);
+                const flagType = selectElement.value;
+
+                if (!flagType) {
+                    alert('Bitte wähle ein Flag aus!');
+                    return;
+                }
+
+                const flagInfo = getFlagInfo(flagType);
+                if (!confirm(`${flagInfo.icon} ${flagInfo.label} für diesen Spieler setzen?`)) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/game/${gameId}/player/${playerId}/flag/set?storyteller_id=${storytellerId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            flag_type: flagType,
+                            metadata: {
+                                set_at: new Date().toISOString()
+                            }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.detail || 'Fehler beim Setzen des Flags');
+                    }
+
+                    // Reset Select
+                    selectElement.value = '';
+
+                    // Reload overview
+                    await loadOverview();
+
+                    console.log(`✅ Flag "${flagType}" gesetzt für Spieler ${playerId}`);
+
+                } catch (error) {
+                    console.error('Fehler beim Setzen des Flags:', error);
+                    alert('Fehler: ' + error.message);
+                }
+            };
+
+            window.clearPlayerFlags = async function(playerId) {
+                if (!confirm('Alle Flags für diesen Spieler entfernen?')) {
+                    return;
+                }
+
+                try {
+                    // Hole aktuelle Flags vom Player
+                    const player = gameData.players.find(p => p.player_id === playerId);
+                    if (!player || !player.flags) {
+                        alert('Keine Flags zum Löschen vorhanden');
+                        return;
+                    }
+
+                    // Entferne alle Flags
+                    const flagTypes = Object.keys(player.flags);
+                    for (const flagType of flagTypes) {
+                        await fetch(`/api/game/${gameId}/player/${playerId}/flag/${flagType}?storyteller_id=${storytellerId}`, {
+                            method: 'DELETE'
+                        });
+                    }
+
+                    // Reload overview
+                    await loadOverview();
+
+                    console.log(`✅ Alle Flags entfernt für Spieler ${playerId}`);
+
+                } catch (error) {
+                    console.error('Fehler beim Löschen der Flags:', error);
+                    alert('Fehler: ' + error.message);
+                }
+            };
+
+            window.clearAllTemporaryFlags = async function() {
+                if (!confirm('Alle temporären Flags (Vergiftet, Geschützt, Fähigkeit genutzt) von ALLEN Spielern entfernen?\n\nDies wird normalerweise am Ende einer Nacht gemacht.')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/game/${gameId}/flags/clear-temporary?storyteller_id=${storytellerId}`, {
+                        method: 'POST'
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.detail || 'Fehler beim Löschen der temporären Flags');
+                    }
+
+                    // Reload overview
+                    await loadOverview();
+
+                    alert('✅ Temporäre Flags wurden von allen Spielern entfernt!');
+
+                } catch (error) {
+                    console.error('Fehler:', error);
+                    alert('Fehler: ' + error.message);
+                }
+            };
         }
     </script>
 </body>
 </html>
+
+
 

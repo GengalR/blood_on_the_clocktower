@@ -303,14 +303,14 @@ class GameService:
             # Minion Info kommt zuerst (vor allen Charakterfähigkeiten)
             first_night_actions.append({
                 "name": "👿 Minion Info",
-                "ability": "Wenn 7+ Spieler: Zeige den Minions, wer ihr Dämon ist.",
+                "ability": "Zeige den Minions, wer ihr Dämon ist.",
                 "order": 0.1
             })
 
             # Dämon Info kommt als zweites
             first_night_actions.append({
                 "name": "😈 Dämon Info",
-                "ability": "Wenn 7+ Spieler: Zeige dem Dämon, wer seine Minions sind. Außerdem zeige ihm 3 \
+                "ability": "Zeige dem Dämon, wer seine Minions sind. Außerdem zeige ihm 3 \
                 gute Charaktäre, die nicht im Spiel sind.",
                 "order": 0.2
             })
@@ -392,10 +392,13 @@ class GameService:
 
             player_data = {
                 "name": p.name,
+                "player_id": p.id,  # Wichtig für Flag-Operationen
                 "character": display_character.name if display_character else None,
                 "ability": display_character.ability if display_character else None,
                 "type": display_character.type if display_character else None,
-                "is_drunk": bool(p.perceived_character)  # True wenn Drunk
+                "is_drunk": bool(p.perceived_character),  # True wenn Drunk
+                "flags": p.flags,  # Aktive Flags
+                "flag_metadata": p.flag_metadata  # Metadata zu Flags
             }
 
             players_overview.append(player_data)
@@ -410,6 +413,185 @@ class GameService:
             "night_order": night_order,
             "baron_active": game.baron_active  # Info ob Baron-Fähigkeit aktiv ist
         }
+
+    def set_player_flag(
+        self,
+        game_id: str,
+        player_id: str,
+        flag_type: str,
+        storyteller_id: str,
+        metadata: Optional[Dict] = None
+    ) -> Player:
+        """
+        Setzt ein Flag für einen Spieler.
+
+        Args:
+            game_id: Spiel-ID
+            player_id: Spieler-ID
+            flag_type: Typ des Flags (z.B. "poisoned", "demon")
+            storyteller_id: ID des Erzählers (zur Validierung)
+            metadata: Optional - Zusätzliche Informationen zum Flag
+
+        Returns:
+            Aktualisierter Player
+
+        Raises:
+            ValueError: Wenn Spiel/Spieler nicht existiert oder Berechtigung fehlt
+
+        Example:
+            >>> player = service.set_player_flag("abc123", "player1", "poisoned", "storyteller1")
+            >>> assert "poisoned" in player.flags
+            >>> assert player.flags["poisoned"] == True
+        """
+        game = self.games.get(game_id)
+        if not game:
+            raise ValueError(f"Spiel {game_id} nicht gefunden")
+
+        # Validiere Storyteller-Berechtigung
+        storyteller = next(
+            (p for p in game.players if p.id == storyteller_id and p.is_storyteller),
+            None
+        )
+        if not storyteller:
+            raise ValueError("Nur der Erzähler kann Flags setzen")
+
+        # Finde Spieler
+        player = next((p for p in game.players if p.id == player_id), None)
+        if not player:
+            raise ValueError(f"Spieler {player_id} nicht gefunden")
+
+        if player.is_storyteller:
+            raise ValueError("Erzähler können keine Flags erhalten")
+
+        # Setze Flag
+        player.flags[flag_type] = True
+
+        # Setze Metadata wenn vorhanden
+        if metadata:
+            player.flag_metadata[flag_type] = metadata
+
+        return player
+
+    def remove_player_flag(
+        self,
+        game_id: str,
+        player_id: str,
+        flag_type: str,
+        storyteller_id: str
+    ) -> Player:
+        """
+        Entfernt ein Flag von einem Spieler.
+
+        Args:
+            game_id: Spiel-ID
+            player_id: Spieler-ID
+            flag_type: Typ des Flags (z.B. "poisoned")
+            storyteller_id: ID des Erzählers (zur Validierung)
+
+        Returns:
+            Aktualisierter Player
+
+        Raises:
+            ValueError: Wenn Spiel/Spieler nicht existiert oder Berechtigung fehlt
+
+        Example:
+            >>> player = service.remove_player_flag("abc123", "player1", "poisoned", "storyteller1")
+            >>> assert "poisoned" not in player.flags or player.flags["poisoned"] == False
+        """
+        game = self.games.get(game_id)
+        if not game:
+            raise ValueError(f"Spiel {game_id} nicht gefunden")
+
+        # Validiere Storyteller-Berechtigung
+        storyteller = next(
+            (p for p in game.players if p.id == storyteller_id and p.is_storyteller),
+            None
+        )
+        if not storyteller:
+            raise ValueError("Nur der Erzähler kann Flags entfernen")
+
+        # Finde Spieler
+        player = next((p for p in game.players if p.id == player_id), None)
+        if not player:
+            raise ValueError(f"Spieler {player_id} nicht gefunden")
+
+        # Entferne Flag
+        if flag_type in player.flags:
+            del player.flags[flag_type]
+
+        # Entferne Metadata
+        if flag_type in player.flag_metadata:
+            del player.flag_metadata[flag_type]
+
+        return player
+
+    def get_player_flags(self, game_id: str, player_id: str) -> Dict[str, bool]:
+        """
+        Gibt alle aktiven Flags eines Spielers zurück.
+
+        Args:
+            game_id: Spiel-ID
+            player_id: Spieler-ID
+
+        Returns:
+            Dictionary mit aktiven Flags
+
+        Raises:
+            ValueError: Wenn Spiel/Spieler nicht existiert
+        """
+        game = self.games.get(game_id)
+        if not game:
+            raise ValueError(f"Spiel {game_id} nicht gefunden")
+
+        player = next((p for p in game.players if p.id == player_id), None)
+        if not player:
+            raise ValueError(f"Spieler {player_id} nicht gefunden")
+
+        return player.flags
+
+    def clear_temporary_flags(self, game_id: str, storyteller_id: str) -> Game:
+        """
+        Entfernt alle temporären Flags (z.B. "poisoned" nach einer Nacht).
+
+        Args:
+            game_id: Spiel-ID
+            storyteller_id: ID des Erzählers (zur Validierung)
+
+        Returns:
+            Aktualisiertes Game-Objekt
+
+        Raises:
+            ValueError: Wenn Spiel nicht existiert oder Berechtigung fehlt
+
+        Example:
+            >>> game = service.clear_temporary_flags("abc123", "storyteller1")
+            >>> # Alle "poisoned" Flags wurden entfernt
+        """
+        game = self.games.get(game_id)
+        if not game:
+            raise ValueError(f"Spiel {game_id} nicht gefunden")
+
+        # Validiere Storyteller-Berechtigung
+        storyteller = next(
+            (p for p in game.players if p.id == storyteller_id and p.is_storyteller),
+            None
+        )
+        if not storyteller:
+            raise ValueError("Nur der Erzähler kann Flags löschen")
+
+        # Definiere temporäre Flags (erweitern nach Bedarf)
+        TEMPORARY_FLAGS = {"poisoned", "protected", "used_ability"}
+
+        # Entferne temporäre Flags von allen Spielern
+        for player in game.players:
+            if not player.is_storyteller:
+                for flag in TEMPORARY_FLAGS:
+                    if flag in player.flags:
+                        del player.flags[flag]
+                    if flag in player.flag_metadata:
+                        del player.flag_metadata[flag]
+
+        return game
 
 
 # Singleton-Instanz

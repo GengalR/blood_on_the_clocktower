@@ -26,6 +26,18 @@ Eine digitale Implementierung des sozialen Deduktionsspiels "Blood on the Clockt
   - Minion/Demon Info bei 7+ Spielern
   - Drunk-Markierung
 
+- **Player Flags System** 🆕
+  - Storyteller kann Status-Flags auf Spieler setzen
+  - Verfügbare Flags:
+    - 🧪 **Vergiftet** (Poisoner-Fähigkeit)
+    - 👹 **Dämon** (Dämon-Markierung)
+    - 🎯 **Red Herring** (Fortune Teller)
+    - 💀 **Tot**
+    - ✅ **Fähigkeit genutzt**
+    - 🛡️ **Geschützt** (Monk)
+  - Temporäre Flags können automatisch gelöscht werden
+  - Visuelle Badges mit Farbcodierung
+
 - **Spieler-Ansicht**
   - Zeigt eigene Rolle und Fähigkeit
   - Drunk sieht falsche Rolle
