@@ -38,6 +38,7 @@ class Game(BaseModel):
     players: List[Player] = []
     started: bool = False
     player_count: Optional[int] = None
+    baron_active: bool = False  # True wenn Baron-Fähigkeit angewendet wurde
 
 
 class CreateGameRequest(BaseModel):

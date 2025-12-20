@@ -141,6 +141,10 @@ class GameService:
 
         # Charaktere auswählen
         characters = self._select_random_characters(game.edition, distribution)
+
+        # Baron-Fähigkeit anwenden: Wenn Baron im Spiel ist, ersetze 2 Townsfolk durch Outsider
+        characters = self._apply_baron_ability(game, characters)
+
         random.shuffle(characters)
 
         # Charaktere an Spieler verteilen (nicht an Erzähler)
@@ -183,6 +187,95 @@ class GameService:
 
                 # Weise die falsche Rolle zu
                 player.perceived_character = fake_character
+
+    def _apply_baron_ability(self, game: Game, characters: list[Character]) -> list[Character]:
+        """
+        Wendet die Baron-Fähigkeit an: Wenn Baron im Spiel ist, werden 2 Townsfolk durch Outsider ersetzt.
+
+        Baron-Fähigkeit: "Es gibt 2 zusätzliche Outsider im Spiel."
+
+        Args:
+            game: Das aktuelle Spiel (wird aktualisiert, wenn Baron aktiv ist)
+            characters: Liste der ausgewählten Charaktere
+
+        Returns:
+            Modifizierte Charakterliste mit ersetzten Townsfolk (falls Baron aktiv)
+
+        Example:
+            >>> chars = [washerwoman, librarian, chef, poisoner, baron, imp]
+            >>> result = self._apply_baron_ability(game, chars)
+            >>> # Ergebnis: 2 Townsfolk sind durch Outsider ersetzt
+        """
+        # Prüfe ob Baron im Spiel ist
+        has_baron = any(char.id == "baron" for char in characters)
+
+        if not has_baron:
+            return characters  # Keine Änderung nötig
+
+        print(f"🎭 Baron im Spiel erkannt! Wende Baron-Fähigkeit an...")
+
+        # Setze Flag im Game-Objekt
+        game.baron_active = True
+
+        # Hole alle Townsfolk und Outsider aus den ausgewählten Charakteren
+        townsfolk_in_game = [char for char in characters if char.type == "townsfolk"]
+        other_characters = [char for char in characters if char.type != "townsfolk"]
+
+        # Validierung: Mindestens 2 Townsfolk müssen vorhanden sein
+        if len(townsfolk_in_game) < 2:
+            print(f"⚠️ Warnung: Weniger als 2 Townsfolk im Spiel ({len(townsfolk_in_game)}). Baron-Fähigkeit kann nicht vollständig angewendet werden.")
+            return characters
+
+        # Hole alle verfügbaren Outsider aus der Edition
+        edition_data = self.editions_data.get(game.edition, {})
+        all_outsiders = edition_data.get("characters", {}).get("outsiders", [])
+
+        # Filtere bereits im Spiel befindliche Outsider heraus
+        outsiders_in_game_ids = [char.id for char in characters if char.type == "outsiders"]
+        available_outsiders = [
+            outsider for outsider in all_outsiders
+            if outsider["id"] not in outsiders_in_game_ids
+        ]
+
+        if outsiders_in_game_ids:
+            print(f"   ℹ️ Bereits vergebene Outsider: {', '.join(outsiders_in_game_ids)}")
+            print(f"   ℹ️ Verfügbare Outsider für Baron: {len(available_outsiders)}")
+
+        # Validierung: Mindestens 2 neue Outsider müssen verfügbar sein
+        if len(available_outsiders) < 2:
+            print(f"⚠️ Warnung: Weniger als 2 neue Outsider verfügbar ({len(available_outsiders)}). Baron-Fähigkeit kann nicht vollständig angewendet werden.")
+            return characters
+
+        # Wähle 2 zufällige Townsfolk zum Ersetzen
+        townsfolk_to_replace = random.sample(townsfolk_in_game, 2)
+
+        # Wähle 2 zufällige Outsider als Ersatz (nur aus noch nicht vergebenen)
+        outsiders_to_add = random.sample(available_outsiders, 2)
+
+        # Entferne die zu ersetzenden Townsfolk
+        for townsfolk in townsfolk_to_replace:
+            townsfolk_in_game.remove(townsfolk)
+            print(f"   ❌ Entferne Townsfolk: {townsfolk.name}")
+
+        # Füge die neuen Outsider hinzu
+        for outsider_data in outsiders_to_add:
+            outsider = Character(
+                id=outsider_data["id"],
+                name=outsider_data["name"],
+                ability=outsider_data["ability"],
+                first_night=outsider_data["first_night"],
+                other_nights=outsider_data["other_nights"],
+                type="outsiders"  # Wichtig: Setze den Typ explizit
+            )
+            townsfolk_in_game.append(outsider)
+            print(f"   ✅ Füge Outsider hinzu: {outsider.name}")
+
+        # Kombiniere alle Charaktere wieder
+        result = townsfolk_in_game + other_characters
+
+        print(f"✨ Baron-Fähigkeit erfolgreich angewendet!")
+
+        return result
 
     def get_night_order(self, game_id: str) -> List[dict]:
         """Gibt die Nachtreihenfolge für den Erzähler zurück"""
@@ -314,7 +407,8 @@ class GameService:
             "edition": game.edition,
             "started": game.started,
             "players": players_overview,
-            "night_order": night_order
+            "night_order": night_order,
+            "baron_active": game.baron_active  # Info ob Baron-Fähigkeit aktiv ist
         }
 
 
