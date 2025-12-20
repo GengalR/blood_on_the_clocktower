@@ -29,6 +29,97 @@
             margin: 0 auto;
         }
 
+        /* Navigation Menu Bar */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-bottom: 2px solid #8b0000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 2000;
+        }
+
+        .nav-title {
+            color: #d4af37;
+            font-size: 20px;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            font-family: 'Crimson Text', serif;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.3) 0%, rgba(74, 0, 0, 0.3) 100%);
+            color: #fff;
+            border: 1px solid rgba(139, 0, 0, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(139, 0, 0, 0.5);
+            border-color: rgba(255, 68, 68, 0.7);
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.5) 0%, rgba(74, 0, 0, 0.5) 100%);
+        }
+
+        .nav-btn:active {
+            transform: translateY(0);
+        }
+
+        .nav-btn.overview {
+            border-color: rgba(76, 175, 80, 0.5);
+            background: linear-gradient(135deg, rgba(45, 122, 45, 0.3) 0%, rgba(26, 77, 26, 0.3) 100%);
+        }
+
+        .nav-btn.overview:hover {
+            border-color: rgba(76, 175, 80, 0.7);
+            background: linear-gradient(135deg, rgba(45, 122, 45, 0.5) 0%, rgba(26, 77, 26, 0.5) 100%);
+        }
+
+        .nav-btn.wiki {
+            border-color: rgba(68, 138, 255, 0.5);
+            background: linear-gradient(135deg, rgba(26, 77, 143, 0.3) 0%, rgba(13, 38, 71, 0.3) 100%);
+        }
+
+        .nav-btn.wiki:hover {
+            border-color: rgba(68, 138, 255, 0.7);
+            background: linear-gradient(135deg, rgba(26, 77, 143, 0.5) 0%, rgba(13, 38, 71, 0.5) 100%);
+        }
+
+        .nav-btn.hidden {
+            display: none;
+        }
+
+        /* Content Abstand zur Navigation */
+        body {
+            padding-top: 60px;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
         .card {
             background: rgba(26, 26, 26, 0.85);
             backdrop-filter: blur(12px) saturate(150%);
@@ -306,39 +397,29 @@
             display: none;
         }
 
-        /* Quick Rules Button */
-        .quick-rules-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 14px 24px;
-            background: linear-gradient(135deg, #8b0000 0%, #4a0000 100%);
-            color: #fff;
-            border: 2px solid rgba(255, 68, 68, 0.4);
-            border-radius: 12px;
-            cursor: pointer;
-            z-index: 1000;
-            font-size: 18px;
-            font-weight: 700;
-            box-shadow: 0 6px 20px rgba(139, 0, 0, 0.6),
-                        0 0 30px rgba(139, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            display: flex;
+        /* Player Wiki Links */
+        .player-wiki-link {
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            gap: 4px;
+            margin-left: 8px;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #1a4d8f 0%, #0d2647 100%);
+            border: 1px solid rgba(68, 138, 255, 0.4);
+            border-radius: 6px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(26, 77, 143, 0.4);
         }
 
-        .quick-rules-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(139, 0, 0, 0.8),
-                        0 0 40px rgba(255, 0, 0, 0.5);
-            border-color: rgba(255, 68, 68, 0.7);
-            background: linear-gradient(135deg, #a00000 0%, #5a0000 100%);
-        }
-
-        .quick-rules-btn:active {
-            transform: translateY(-1px);
+        .player-wiki-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 77, 143, 0.6);
+            border-color: rgba(68, 138, 255, 0.7);
+            background: linear-gradient(135deg, #2563a8 0%, #133158 100%);
         }
 
         /* Modal Overlay */
@@ -449,14 +530,55 @@
             font-weight: 600;
         }
 
+        /* Overview Modal Specific Styles */
+        .overview-modal .modal-content {
+            max-width: 98vw;
+            max-height: 98vh;
+            padding: 10px;
+        }
+
+        .overview-image {
+            width: 100%;
+            height: auto;
+            max-height: 96vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: block;
+        }
+
+        .overview-modal h2 {
+            display: none;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 600px) {
-            .quick-rules-btn {
+            .nav-bar {
+                height: auto;
+                flex-direction: column;
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .nav-title {
                 font-size: 16px;
-                padding: 12px 20px;
-                top: 15px;
-                right: 15px;
-                gap: 6px;
+                text-align: center;
+            }
+
+            .nav-buttons {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .nav-btn {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+
+            body {
+                padding-top: 140px;
             }
 
             .modal-content {
@@ -478,11 +600,22 @@
     </style>
 </head>
 <body>
-    <!-- Quick Rules Button -->
-    <button id="quickRulesBtn" class="quick-rules-btn"
-            aria-label="Schnellregeln anzeigen">
-        📜 Regeln
-    </button>
+    <!-- Navigation Menu Bar -->
+    <nav class="nav-bar">
+        <div class="nav-title">🎭 Blood on the Clocktower - Storyteller</div>
+        <div class="nav-buttons">
+            <button id="overviewBtn" class="nav-btn overview" aria-label="Editions-Überblick anzeigen">
+                🗺️ Überblick
+            </button>
+            <a id="wikiBtn" class="nav-btn wiki hidden" target="_blank" rel="noopener noreferrer"
+               aria-label="Charakter-Wiki öffnen">
+                📚 Wiki
+            </a>
+            <button id="quickRulesBtn" class="nav-btn" aria-label="Schnellregeln anzeigen">
+                📜 Regeln
+            </button>
+        </div>
+    </nav>
 
     <!-- Quick Rules Modal -->
     <div id="rulesModal" class="modal-overlay" role="dialog"
@@ -492,6 +625,18 @@
             <h2 id="rulesModalTitle">Lädt...</h2>
             <div id="rulesContent">
                 <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overview Modal -->
+    <div id="overviewModal" class="modal-overlay overview-modal" role="dialog"
+         aria-modal="true" aria-labelledby="overviewModalTitle">
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Schließen">×</button>
+            <h2 id="overviewModalTitle">Editions-Überblick</h2>
+            <div id="overviewContent">
+                <img id="overviewImage" class="overview-image" src="" alt="Editions-Überblick">
             </div>
         </div>
     </div>
@@ -654,12 +799,62 @@
             }
         });
 
+        // Overview Modal Functions
+        let currentEdition = null;
+
+        function openOverviewModal() {
+            const modal = document.getElementById('overviewModal');
+            const overviewImage = document.getElementById('overviewImage');
+
+            if (currentEdition) {
+                // Edition-Name für Pfad formatieren (z.B. "TroubleBrewing" -> "trouble_brewing")
+                const editionPath = currentEdition
+                    .replace(/([A-Z])/g, '_$1')
+                    .toLowerCase()
+                    .replace(/^_/, '');
+
+                overviewImage.src = `/static/images/${editionPath}/overview.png`;
+                overviewImage.alt = `Überblick für ${currentEdition}`;
+            }
+
+            modal.classList.add('active');
+
+            // Focus auf Close-Button für Accessibility
+            const closeBtn = modal.querySelectorAll('.modal-close')[1];
+            if (closeBtn) closeBtn.focus();
+        }
+
+        function closeOverviewModal() {
+            const modal = document.getElementById('overviewModal');
+            modal.classList.remove('active');
+            document.getElementById('overviewBtn').focus();
+        }
+
+        // Event Listeners für Overview Modal
+        document.getElementById('overviewBtn').addEventListener('click', openOverviewModal);
+
+        const overviewModalCloseBtn = document.getElementById('overviewModal').querySelector('.modal-close');
+        if (overviewModalCloseBtn) {
+            overviewModalCloseBtn.addEventListener('click', closeOverviewModal);
+        }
+
+        document.getElementById('overviewModal').addEventListener('click', (e) => {
+            if (e.target.id === 'overviewModal') {
+                closeOverviewModal();
+            }
+        });
+
         // ESC-Taste schließt Modal
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                const modal = document.getElementById('rulesModal');
-                if (modal.classList.contains('active')) {
+                const rulesModal = document.getElementById('rulesModal');
+                const overviewModal = document.getElementById('overviewModal');
+
+                if (rulesModal.classList.contains('active')) {
                     closeRulesModal();
+                }
+                if (overviewModal.classList.contains('active')) {
+                    closeOverviewModal();
                 }
             }
         });
@@ -769,6 +964,9 @@
 
                     const data = await response.json();
 
+                    // Speichere Edition für Überblick-Button
+                    currentEdition = edition;
+
                     // Zeige Join-Link
                     const joinUrl = `${window.location.origin}${data.join_url}`;
                     alert(`Spiel erstellt! 🎉\n\nTeile diesen Link mit den Spielern:\n${joinUrl}\n\nDu wirst jetzt zur Erzähler-Ansicht weitergeleitet.`);
@@ -826,6 +1024,9 @@
             function updateUI() {
                 if (!gameData) return;
 
+                // Speichere Edition für Überblick-Button
+                currentEdition = gameData.edition;
+
                 // Spielinfo
                 document.getElementById('gameId').textContent = gameData.game_id;
                 document.getElementById('editionName').textContent = gameData.edition;
@@ -842,11 +1043,27 @@
                 gameData.players.forEach(player => {
                     const div = document.createElement('div');
                     div.className = 'player-item';
+
+                    // Wiki-Link URL vorbereiten (falls Charakter zugewiesen)
+                    let wikiLink = '';
+                    if (player.character) {
+                        const characterName = player.character.replace(/\s+/g, '');
+                        wikiLink = `<a href="https://wiki.bloodontheclocktower.com/${characterName}"
+                                      target="_blank" rel="noopener noreferrer"
+                                      class="player-wiki-link"
+                                      aria-label="Wiki für ${player.character}">
+                                      📚 Wiki
+                                    </a>`;
+                    }
+
                     div.innerHTML = `
                         <div>
                             <div class="player-name">${player.name}</div>
                             ${player.character ? `
-                                <div class="player-role">${player.character} (${getTypeLabel(player.type)})</div>
+                                <div class="player-role">
+                                    ${player.character} (${getTypeLabel(player.type)})
+                                    ${wikiLink}
+                                </div>
                                 <div class="player-ability">${player.ability}</div>
                             ` : '<div class="player-role">Rolle noch nicht zugewiesen</div>'}
                         </div>

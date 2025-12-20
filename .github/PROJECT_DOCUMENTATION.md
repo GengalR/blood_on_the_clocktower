@@ -155,6 +155,41 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # 4. Returns {players: [...], night_order: {...}}
 ```
 
+#### 🌙 `get_night_order(game_id)` - Night Order Generation (v1.2.0+)
+
+**Zweck:** Generiert die Nachtreihenfolge mit automatischer Integration von Minion/Dämon-Info.
+
+**Erste Nacht bei 7+ Spielern:**
+```python
+# ZUERST werden diese Info-Schritte hinzugefügt:
+first_night_actions = [
+    {
+        "name": "👿 Minion Info",
+        "ability": "Wenn 7+ Spieler: Zeige den Minions, wer ihr Dämon ist.",
+        "order": 0.1
+    },
+    {
+        "name": "😈 Dämon Info", 
+        "ability": "Wenn 7+ Spieler: Zeige dem Dämon, wer seine Minions sind. Außerdem zeige ihm 3 gute Charaktere, die nicht im Spiel sind.",
+        "order": 0.2
+    }
+]
+# DANN folgen alle Charakterfähigkeiten (order >= 1)
+```
+
+**Sortierung:**
+1. Order 0.1: Minion Info *(nur bei 7+ Spielern)*
+2. Order 0.2: Dämon Info *(nur bei 7+ Spielern)*
+3. Order 1+: Charakterfähigkeiten nach `first_night` Wert aus editions.json
+
+**Wichtig:** 
+- Änderung wirkt nur für **neue Spiele** (In-Memory-Storage)
+- Bei < 7 Spielern: Keine Info-Schritte, direkt Charaktere
+
+**Frontend-Darstellung:**
+- Storyteller-Dashboard → "🌙 Nachtreihenfolge → Erste Nacht"
+- Zeigt: Order-Nummer (roter Kreis) + Name + Fähigkeitsbeschreibung
+
 ### Role Distribution
 ```json
 // editions.json → setup
@@ -194,7 +229,7 @@ document.getElementById('gameForm').addEventListener('submit', async (e) => {
 
     const data = await response.json();
     // Redirect to storyteller page
-    window.location.href = `../../../static/storyteller.html`;
+    window.location.href = `../static/storyteller.html`;
 });
 ```
 
@@ -544,6 +579,20 @@ Player waits → GET /api/role
 
 ## 📄 CHANGELOG
 
+### v1.2.0 - 2025-12-20 (Minion & Dämon Info)
+- ✅ **New Feature:** Minion & Dämon Info in Nachtreihenfolge
+  - Fügt zwei neue Info-Schritte am Anfang der ersten Nacht hinzu (nur bei 7+ Spielern)
+  - 👿 **Minion Info** (Order 0.1): "Zeige den Minions, wer ihr Dämon ist"
+  - 😈 **Dämon Info** (Order 0.2): "Zeige dem Dämon, wer seine Minions sind + 3 gute Charaktere die nicht im Spiel sind"
+  - Automatische Sortierung in der Nachtreihenfolge vor allen Charakterfähigkeiten
+  - Sichtbar im Storyteller-Dashboard unter "🌙 Nachtreihenfolge → Erste Nacht"
+  - Implementiert in: `game_service.py` → `get_night_order()` Funktion
+  - **Wichtig:** Nur für neue Spiele wirksam (In-Memory-Storage)
+- 🔧 **Verbesserung:** Prompt-Organisation
+  - `.github/prompts/docs/` - Dokumentations-Prompts (6 Dateien)
+  - `.github/prompts/features/` - Feature-Planungs-Prompts (3 Dateien)
+- 📝 **Dokumentation:** Changelog aktualisiert mit v1.2.0
+
 ### v1.1 - 2025-01-19 (Quick Rules Feature)
 - ✅ **New Feature:** Quick Rules Modal
   - Zugänglich über Button "📜 Regeln" (oben rechts)
@@ -589,6 +638,6 @@ Player waits → GET /api/role
 ---
 
 **Created:** 2025-01-19  
-**Last Updated:** 2025-01-19  
-**Version:** 1.1.0 (Quick Rules Feature)
+**Last Updated:** 2025-12-20  
+**Version:** 1.2.0 (Minion & Dämon Info Feature)
 

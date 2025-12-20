@@ -133,6 +133,10 @@ async def start_game(game_id: str, request: StartGameRequest):
 @app.get("/api/player/{game_id}/{player_id}/role")
 async def get_player_role(game_id: str, player_id: str):
     """Gibt die Rolle eines Spielers zurück"""
+    game = game_service.get_game(game_id)
+    if not game:
+        raise HTTPException(status_code=404, detail="Spiel nicht gefunden")
+
     character = game_service.get_player_role(game_id, player_id)
     if not character:
         raise HTTPException(status_code=404, detail="Rolle nicht gefunden")
@@ -140,7 +144,8 @@ async def get_player_role(game_id: str, player_id: str):
     return {
         "name": character.name,
         "ability": character.ability,
-        "type": character.type
+        "type": character.type,
+        "edition": game.edition
     }
 
 

@@ -164,11 +164,43 @@ class GameService:
             if p.character is not None
         ]
 
-        # Erste Nacht
+        # Erste Nacht - erstelle Liste mit Infos am Anfang
+        first_night_actions = []
+
+        # Füge Minion Info und Dämon Info hinzu, wenn 7+ Spieler (ohne Storyteller)
+        player_count = game.player_count or 0
+
+        if player_count >= 7:
+            # Minion Info kommt zuerst (vor allen Charakterfähigkeiten)
+            first_night_actions.append({
+                "name": "👿 Minion Info",
+                "ability": "Wenn 7+ Spieler: Zeige den Minions, wer ihr Dämon ist.",
+                "order": 0.1
+            })
+
+            # Dämon Info kommt als zweites
+            first_night_actions.append({
+                "name": "😈 Dämon Info",
+                "ability": "Wenn 7+ Spieler: Zeige dem Dämon, wer seine Minions sind. Außerdem zeige ihm 3 \
+                gute Charaktäre, die nicht im Spiel sind.",
+                "order": 0.2
+            })
+
+        # Füge alle Charakterfähigkeiten hinzu
         first_night = sorted(
             [c for c in characters_in_game if c.first_night > 0],
             key=lambda x: x.first_night
         )
+
+        for c in first_night:
+            first_night_actions.append({
+                "name": c.name,
+                "ability": c.ability,
+                "order": c.first_night
+            })
+
+        # Sortiere nach Reihenfolge
+        first_night_actions.sort(key=lambda x: x["order"])
 
         # Andere Nächte
         other_nights = sorted(
@@ -177,10 +209,7 @@ class GameService:
         )
 
         return {
-            "first_night": [
-                {"name": c.name, "ability": c.ability, "order": c.first_night}
-                for c in first_night
-            ],
+            "first_night": first_night_actions,
             "other_nights": [
                 {"name": c.name, "ability": c.ability, "order": c.other_nights}
                 for c in other_nights
