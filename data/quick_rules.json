@@ -34,8 +34,9 @@
       "emoji": "4️⃣",
       "title": "Tod & Abstimmen",
       "rules": [
-        "<strong>Sprechen erlaubt:</strong> Tote Spieler dürfen weiter reden",
-        "<strong>1 Stimme übrig:</strong> Tote haben nur noch 1 Stimme fürs ganze Spiel",
+        "<strong>Weiter im Spiel:</strong> Charakter nicht aufdecken!",
+        "<strong>Sprechen erlaubt:</strong> Tote Spieler dürfen weiter reden & diskutieren",
+        "<strong>1 Stimme übrig:</strong> Tote haben nur noch 1 Stimme fürs ganze Spiel - nominieren dürfen sie aber nicht mehr",
         "<strong>Team-Sieg:</strong> Tote gewinnen/verlieren mit ihrem Team"
       ]
     }

@@ -28,6 +28,7 @@ class Player(BaseModel):
     id: str
     name: str
     character: Optional[Character] = None
+    perceived_character: Optional[Character] = None  # Für Drunk: Die Rolle, die der Spieler glaubt zu sein
     is_storyteller: bool = False
 
 

@@ -6,7 +6,7 @@
         {
           "id": "washerwoman",
           "name": "Washerwoman",
-          "ability": "Du erfährst in der ersten Nacht, dass einer von zwei Spielern ein bestimmter Townsfolk ist.",
+          "ability": "Du erfährst in der ersten Nacht, dass einer von zwei Spielern ein bestimmter Charakter vom Townsfolk ist.",
           "first_night": 1,
           "other_nights": 0
         },
@@ -41,7 +41,7 @@
         {
           "id": "fortuneteller",
           "name": "Fortune Teller",
-          "ability": "Jede Nacht wählst du 2 Spieler: Du erfährst, ob einer von ihnen der Dämon ist. Es gibt einen guten Spieler, der als Dämon registriert.",
+          "ability": "Jede Nacht wählst du 2 Spieler: Du erfährst, ob einer von ihnen der Dämon ist. Es gibt jedoch einen guten Spieler, der für dich als Dämon gezählt wird.",
           "first_night": 6,
           "other_nights": 11
         },
@@ -69,7 +69,7 @@
         {
           "id": "virgin",
           "name": "Virgin",
-          "ability": "Wenn du das erste Mal nominiert wirst, wird der Nominierende hingerichtet (falls er ein Townsfolk ist).",
+          "ability": "Wenn du das erste Mal nominiert wirst, wird der Nominierende sofort hingerichtet (falls er ein Townsfolk ist).",
           "first_night": 0,
           "other_nights": 0
         },
@@ -90,7 +90,7 @@
         {
           "id": "mayor",
           "name": "Mayor",
-          "ability": "Wenn nur 3 Spieler leben, kannst du nicht durch Hinrichtung sterben.",
+          "ability": "Wenn noch 3 Spieler am Ende des Tages leben, dann gewinnt dein Team. Außerdem kann in der Nacht eine Person an deiner Stelle sterben.",
           "first_night": 0,
           "other_nights": 0
         }
@@ -106,14 +106,14 @@
         {
           "id": "drunk",
           "name": "Drunk",
-          "ability": "Du weißt nicht, dass du der Drunk bist. Du denkst, du bist ein Townsfolk, aber deine Fähigkeit funktioniert nicht.",
+          "ability": "Du weißt nicht, dass du der Drunk bist. Du denkst, du bist ein anderer Charakter vom Townsfolk, aber deine Fähigkeit funktioniert nicht.",
           "first_night": 0,
           "other_nights": 0
         },
         {
           "id": "recluse",
           "name": "Recluse",
-          "ability": "Du kannst für den Dämon oder Minion registrieren, auch wenn du tot bist.",
+          "ability": "Du bist ein guter Charakter, aber der Erzähler kann dich für einen Dämon oder Minion ausgeben, auch wenn du tot bist.",
           "first_night": 0,
           "other_nights": 0
         },
@@ -129,14 +129,14 @@
         {
           "id": "poisoner",
           "name": "Poisoner",
-          "ability": "Jede Nacht wählst du einen Spieler: Er ist vergiftet bis zur nächsten Dämmerung.",
+          "ability": "Jede Nacht wählst du einen Spieler: Er ist vergiftet (verliert seine Fähigkeit) bis zur nächsten Dämmerung.",
           "first_night": 8,
           "other_nights": 1
         },
         {
           "id": "spy",
           "name": "Spy",
-          "ability": "Jede Nacht siehst du das Grimoire (Erzählerbuch). Du kannst für gute Rollen registrieren.",
+          "ability": "Jede Nacht siehst du das Grimoire (Erzählerbuch). Du kannst vom Erzähler als guter Charakter ausgegeben werden.",
           "first_night": 9,
           "other_nights": 8
         },

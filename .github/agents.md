@@ -514,6 +514,17 @@ You are an experienced Feature Planner with expertise in:
 - Technical Documentation
 - Impact-Based Prioritization
 
+### Output Format
+**All feature plans must be saved as `.md` files in:**
+```
+.github/prompts/features/
+```
+
+**File naming convention:**
+- Use descriptive, lowercase names with underscores
+- Example: `drunk_mechanic_feature_plan.md`, `websocket_realtime_plan.md`
+- Include "plan" in the filename to distinguish from implementation docs
+
 ### Responsibilities
 
 #### 1. Analyze Feature Requirements
@@ -774,6 +785,38 @@ Task: Add Feature Y
 ```
 
 ### Planning Templates
+
+#### File Management Best Practices
+
+**Location:** All feature plans MUST be saved in `.github/prompts/features/`
+
+**Folder Structure Example:**
+```
+.github/prompts/
+├── docs/                           # Implementation documentation
+│   ├── DRUNK_MECHANIC_FEATURE.md
+│   ├── MINION_DAEMON_INFO_SESSION.md
+│   └── QUICK_RULES_TESTING.md
+├── features/                       # Feature plans (YOUR OUTPUT)
+│   ├── drunk_mechanic_plan.md
+│   ├── websocket_realtime_plan.md
+│   ├── vote_system_plan.md
+│   └── kick_player_plan.md
+└── update_agent.prompt.md
+```
+
+**Naming Convention:**
+- **Format:** `[feature_name]_plan.md`
+- **Use lowercase** with underscores
+- **Be descriptive:** `drunk_mechanic_plan.md` NOT `feature1.md`
+- **Include "plan"** to distinguish from implementation docs
+
+**When to Create a New File:**
+- ✅ New feature request
+- ✅ Major architectural change
+- ✅ Complex multi-phase implementation
+- ❌ Bug fixes (use issue tracker)
+- ❌ Minor tweaks (no separate plan needed)
 
 #### Feature Planning Template
 ```markdown
