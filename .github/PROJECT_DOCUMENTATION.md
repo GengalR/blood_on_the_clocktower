@@ -172,28 +172,29 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 ### index.html (Create Game)
 **JavaScript Flow:**
+
 ```javascript
 // 1. DOMContentLoaded → loadEditions()
 async function loadEditions() {
-  const response = await fetch('/api/editions');
-  const editions = await response.json();
-  // Dynamically populate <select id="editionSelect">
+    const response = await fetch('/api/editions');
+    const editions = await response.json();
+    // Dynamically populate <select id="editionSelect">
 }
 
 // 2. Form Submit
 document.getElementById('gameForm').addEventListener('submit', async (e) => {
-  e.preventDefault(); // Prevents normal submit
-  const storytellerName = document.getElementById('storytellerName').value;
-  const edition = document.getElementById('editionSelect').value;
-  
-  const response = await fetch('/api/game/create', {
-    method: 'POST',
-    body: JSON.stringify({edition, storyteller_name: storytellerName})
-  });
-  
-  const data = await response.json();
-  // Redirect to storyteller page
-  window.location.href = `/static/storyteller.html?game=${data.game_id}&storyteller=${data.storyteller_id}`;
+    e.preventDefault(); // Prevents normal submit
+    const storytellerName = document.getElementById('storytellerName').value;
+    const edition = document.getElementById('editionSelect').value;
+
+    const response = await fetch('/api/game/create', {
+        method: 'POST',
+        body: JSON.stringify({edition, storyteller_name: storytellerName})
+    });
+
+    const data = await response.json();
+    // Redirect to storyteller page
+    window.location.href = `../../../static/storyteller.html`;
 });
 ```
 
