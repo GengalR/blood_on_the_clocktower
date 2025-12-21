@@ -265,6 +265,27 @@ async def clear_temporary_flags(game_id: str, storyteller_id: str):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@app.get("/api/game/{game_id}/unassigned-characters")
+async def get_unassigned_characters(game_id: str, storyteller_id: str):
+    """
+    Gibt alle nicht vergebenen Townsfolk und Outsiders zurück.
+
+    Args:
+        game_id: Spiel-ID
+        storyteller_id: Erzähler-ID (als Query-Parameter)
+
+    Returns:
+        Dictionary mit unassigned townsfolk und outsiders
+
+    Example:
+        GET /api/game/abc123/unassigned-characters?storyteller_id=st1
+    """
+    try:
+        return game_service.get_unassigned_characters(game_id, storyteller_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 # Frontend Routes
 @app.get("/", response_class=HTMLResponse)
 async def read_root():

@@ -311,7 +311,7 @@ class GameService:
             first_night_actions.append({
                 "name": "😈 Dämon Info",
                 "ability": "Zeige dem Dämon, wer seine Minions sind. Außerdem zeige ihm 3 \
-                gute Charaktäre, die nicht im Spiel sind.",
+                gute Charaktere, die nicht im Spiel sind.",
                 "order": 0.2
             })
 
@@ -593,6 +593,71 @@ class GameService:
                         del player.flag_metadata[flag]
 
         return game
+
+    def get_unassigned_characters(self, game_id: str, storyteller_id: str) -> dict:
+        """
+        Gibt 3 zufällige nicht vergebene Townsfolk und Outsider zurück.
+
+        Args:
+            game_id: Spiel-ID
+            storyteller_id: Erzähler-ID (zur Validierung)
+
+        Returns:
+            Dictionary mit 3 zufälligen unassigned characters (Townsfolk oder Outsiders)
+
+        Raises:
+            ValueError: Wenn Spiel nicht existiert oder nicht gestartet oder keine Berechtigung
+
+        Example:
+            >>> result = service.get_unassigned_characters("abc123", "storyteller1")
+            >>> len(result["characters"])  # Immer maximal 3
+            3
+        """
+        game = self.games.get(game_id)
+        if not game:
+            raise ValueError(f"Spiel {game_id} nicht gefunden")
+
+        # Validiere Storyteller-Berechtigung
+        storyteller = next(
+            (p for p in game.players if p.id == storyteller_id and p.is_storyteller),
+            None
+        )
+        if not storyteller:
+            raise ValueError("Nur der Erzähler kann diese Information sehen")
+
+        if not game.started:
+            raise ValueError("Spiel muss gestartet sein")
+
+        # Hole alle verfügbaren Charaktere der Edition
+        all_characters = self.editions_data[game.edition]["characters"]
+
+        # Sammle alle vergebenen Charakter-IDs (reale, nicht perceived)
+        assigned_character_ids = set()
+        for player in game.players:
+            if player.character and not player.is_storyteller:
+                assigned_character_ids.add(player.character.id)
+
+        # Sammle alle nicht vergebenen Townsfolk und Outsiders
+        all_unassigned = []
+
+        for char_type in ["townsfolk", "outsiders"]:
+            for char in all_characters.get(char_type, []):
+                if char["id"] not in assigned_character_ids:
+                    all_unassigned.append({
+                        "id": char["id"],
+                        "name": char["name"],
+                        "ability": char["ability"],
+                        "type": char_type
+                    })
+
+        # Wähle zufällig 3 Charaktere aus (oder weniger, falls nicht genug vorhanden)
+        selected_count = min(3, len(all_unassigned))
+        selected_characters = random.sample(all_unassigned, selected_count) if all_unassigned else []
+
+        return {
+            "characters": selected_characters,
+            "total_available": len(all_unassigned)
+        }
 
 
 # Singleton-Instanz
