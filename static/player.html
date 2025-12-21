@@ -75,6 +75,29 @@
             padding: 20px;
         }
 
+        .role-image {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px auto;
+            border-radius: 50%;
+            border: 4px solid rgba(212, 175, 55, 0.5);
+            box-shadow:
+                0 0 30px rgba(212, 175, 55, 0.4),
+                0 8px 20px rgba(0, 0, 0, 0.6);
+            object-fit: cover;
+            display: block;
+        }
+
+        .role-image.loading {
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.2) 0%, rgba(74, 0, 0, 0.2) 100%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
         .role-name {
             font-size: 32px;
             font-weight: bold;
@@ -499,6 +522,7 @@
 
             <div id="roleView" style="display: none;">
                 <div class="role-card">
+                    <img id="roleImage" class="role-image loading" src="" alt="Charakter" style="display: none;">
                     <div class="role-name" id="roleName">-</div>
                     <span class="role-type" id="roleType">-</span>
 
@@ -682,6 +706,39 @@
             document.getElementById('roleType').textContent = getTypeLabel(role.type);
             document.getElementById('roleType').className = `role-type ${role.type}`;
             document.getElementById('roleAbility').textContent = role.ability;
+
+            // Charakterbild laden und anzeigen
+            try {
+                const roleImage = document.getElementById('roleImage');
+                if (roleImage && role.id && role.edition) {
+                    // Edition-Name für Pfad formatieren (z.B. "TroubleBrewing" -> "trouble_brewing")
+                    const editionPath = role.edition
+                        .replace(/([A-Z])/g, '_$1')  // Großbuchstaben mit Unterstrich prefixen
+                        .toLowerCase()                 // Alles klein schreiben
+                        .replace(/^_/, '');           // Führenden Unterstrich entfernen
+
+                    const imagePath = `/static/images/${editionPath}/characters/${role.id}.png`;
+
+                    // Bild-Element vorbereiten
+                    roleImage.src = imagePath;
+                    roleImage.alt = role.name;
+                    roleImage.classList.add('loading');
+                    roleImage.style.display = 'block';
+
+                    // Loading-Animation entfernen wenn Bild geladen
+                    roleImage.onload = () => {
+                        roleImage.classList.remove('loading');
+                    };
+
+                    // Bei Fehler: Bild verstecken
+                    roleImage.onerror = () => {
+                        console.warn(`Charakterbild nicht gefunden: ${imagePath}`);
+                        roleImage.style.display = 'none';
+                    };
+                }
+            } catch (error) {
+                console.error('Fehler beim Laden des Charakterbilds:', error);
+            }
 
             // Wiki-Button konfigurieren und anzeigen
             try {

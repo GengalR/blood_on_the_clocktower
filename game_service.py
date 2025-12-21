@@ -394,6 +394,7 @@ class GameService:
                 "name": p.name,
                 "player_id": p.id,  # Wichtig für Flag-Operationen
                 "character": display_character.name if display_character else None,
+                "character_id": display_character.id if display_character else None,  # Für Bildpfade
                 "ability": display_character.ability if display_character else None,
                 "type": display_character.type if display_character else None,
                 "is_drunk": bool(p.perceived_character),  # True wenn Drunk

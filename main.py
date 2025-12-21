@@ -142,6 +142,7 @@ async def get_player_role(game_id: str, player_id: str):
         raise HTTPException(status_code=404, detail="Rolle nicht gefunden")
 
     return {
+        "id": character.id,
         "name": character.name,
         "ability": character.ability,
         "type": character.type,

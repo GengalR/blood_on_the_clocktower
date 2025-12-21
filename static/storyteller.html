@@ -260,6 +260,36 @@
             margin-bottom: 10px;
             backdrop-filter: blur(5px);
             box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .player-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid rgba(212, 175, 55, 0.4);
+            box-shadow:
+                0 0 20px rgba(212, 175, 55, 0.3),
+                0 4px 12px rgba(0, 0, 0, 0.5);
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .player-image.loading {
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.2) 0%, rgba(74, 0, 0, 0.2) 100%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .player-info {
+            flex: 1;
+            min-width: 0;
         }
 
         .player-name {
@@ -1137,8 +1167,22 @@
                         `;
                     }
 
+                    // Charakterbild-HTML erstellen
+                    let characterImage = '';
+                    if (player.character && player.character_id) {
+                        // Edition-Name für Pfad formatieren (z.B. "TroubleBrewing" -> "trouble_brewing")
+                        const editionPath = gameData.edition
+                            .replace(/([A-Z])/g, '_$1')
+                            .toLowerCase()
+                            .replace(/^_/, '');
+
+                        const imagePath = `/static/images/${editionPath}/characters/${player.character_id}.png`;
+                        characterImage = `<img src="${imagePath}" alt="${player.character}" class="player-image loading" onerror="this.style.display='none'" onload="this.classList.remove('loading')">`;
+                    }
+
                     div.innerHTML = `
-                        <div>
+                        ${characterImage}
+                        <div class="player-info">
                             <div class="player-name">${player.name}</div>
                             ${player.character ? `
                                 <div class="player-role">
