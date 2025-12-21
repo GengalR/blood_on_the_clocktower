@@ -5,6 +5,15 @@ from models import CreateGameRequest, JoinGameRequest, StartGameRequest, SetPlay
 from game_service import game_service
 import uvicorn
 import socket
+import logging
+
+# Logging konfigurieren
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Blood on the Clocktower")
 
@@ -77,6 +86,12 @@ async def create_game(request: CreateGameRequest):
     try:
         game = game_service.create_game(request.edition, request.storyteller_name)
         storyteller = next(p for p in game.players if p.is_storyteller)
+
+        # Logging: Storyteller-Verbindung mit vollständiger URL
+        local_ip = get_local_ip()
+        storyteller_url = f"http://{local_ip}:8000/storyteller.html?game={game.id}&storyteller={storyteller.id}"
+        logger.info(f"🎭 Game created by {storyteller.name} (Storyteller) on {storyteller_url}")
+
         return {
             "game_id": game.id,
             "edition": game.edition,
@@ -107,6 +122,12 @@ async def join_game(game_id: str, request: JoinGameRequest):
     """Spieler tritt einem Spiel bei"""
     try:
         player = game_service.join_game(game_id, request.player_name)
+
+        # Logging: Spieler-Verbindung mit vollständiger URL
+        local_ip = get_local_ip()
+        player_url = f"http://{local_ip}:8000/player.html?game={game_id}&player={player.id}"
+        logger.info(f"👤 {player.name} (Player) connected on {player_url}")
+
         return {
             "player_id": player.id,
             "name": player.name,
