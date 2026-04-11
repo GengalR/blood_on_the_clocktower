@@ -2,7 +2,7 @@ import json
 import random
 import uuid
 from typing import Dict, List, Optional
-from models import Game, Player, Character, CharacterType, Team
+from models import Game, Player, Character, CharacterType
 
 
 class GameService:
@@ -161,32 +161,59 @@ class GameService:
 
     def _assign_drunk_perceived_roles(self, game: Game) -> None:
         """
-        Weist Drunk-Spielern eine zufällige Townsfolk-Rolle zu, die sie glauben zu sein.
+        Weist Drunk-Spielern eine Townsfolk-Rolle zu, die real nicht im Spiel ist.
+
+        Die Zuweisung erfolgt nach der kompletten Rollenverteilung, damit keine
+        perceived_character mit real vergebener Rolle kollidiert.
 
         Args:
             game: Das aktuelle Spiel
+
+        Raises:
+            ValueError: Wenn nicht genug unvergebene Townsfolk für Drunk-Spieler verfügbar sind
         """
-        # Hole alle verfügbaren Townsfolk aus der Edition
         townsfolk_characters = self.editions_data[game.edition]["characters"]["townsfolk"]
 
-        # Finde alle Drunk-Spieler
-        for player in game.players:
-            if player.character and player.character.id == "drunk":
-                # Wähle zufällige Townsfolk-Rolle
-                fake_townsfolk_data = random.choice(townsfolk_characters)
+        drunk_players = [
+            player for player in game.players
+            if player.character and player.character.id == "drunk"
+        ]
+        if not drunk_players:
+            return
 
-                # Erstelle Character-Objekt für die falsche Rolle
-                fake_character = Character(
-                    id=fake_townsfolk_data["id"],
-                    name=fake_townsfolk_data["name"],
-                    ability=fake_townsfolk_data["ability"],
-                    first_night=fake_townsfolk_data["first_night"],
-                    other_nights=fake_townsfolk_data["other_nights"],
-                    type="townsfolk"
-                )
+        assigned_character_ids = {
+            player.character.id
+            for player in game.players
+            if player.character and not player.is_storyteller
+        }
 
-                # Weise die falsche Rolle zu
-                player.perceived_character = fake_character
+        available_fake_townsfolk = [
+            town for town in townsfolk_characters
+            if town["id"] not in assigned_character_ids
+        ]
+
+        if len(available_fake_townsfolk) < len(drunk_players):
+            raise ValueError(
+                "Nicht genug unvergebene Townsfolk-Rollen verfügbar, um allen Drunk-Spielern "
+                "eine eindeutige wahrgenommene Rolle zuzuweisen."
+            )
+
+        for player in drunk_players:
+            fake_townsfolk_data = random.choice(available_fake_townsfolk)
+            available_fake_townsfolk = [
+                town for town in available_fake_townsfolk
+                if town["id"] != fake_townsfolk_data["id"]
+            ]
+
+            player.perceived_character = Character(
+                id=fake_townsfolk_data["id"],
+                name=fake_townsfolk_data["name"],
+                ability=fake_townsfolk_data["ability"],
+                first_night=fake_townsfolk_data["first_night"],
+                other_nights=fake_townsfolk_data["other_nights"],
+                type=CharacterType.TOWNSFOLK
+            )
+
 
     def _apply_baron_ability(self, game: Game, characters: list[Character]) -> list[Character]:
         """
